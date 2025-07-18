@@ -3,39 +3,24 @@ Same as approximate dynamics, but now the input is sine and cosine of theta (out
 This is a continuous representation of theta, which some papers show is easier for a NN to learn.
 """
 import gymnasium as gym
-# import gym
 import numpy as np
 import torch
 import logging
 import math
-# from pytorch_mppi import mppi
-# from pytorch_mppi_folder import mppi_modified as mppi
 from pytorch_icem import icem
-# from gymnasium import logger as gym_log
-# from gym import logger as gym_log
 import logging
 import os 
 
-# gym_log.set_level(gym_log.INFO)
-# # gym_log.min_level(gym_log.INFO)
-# gym_log.min_level(logging.INFO)
-# logger = logging.getLogger(__name__)
-# logging.basicConfig(level=logging.INFO,
-#                     format='[%(levelname)s %(asctime)s %(pathname)s:%(lineno)d] %(message)s',
-#                     datefmt='%m-%d %H:%M:%S')
 
 def run(ctrl: icem.iCEM, env, retrain_dynamics, retrain_after_iter=50, iter=1000, render=True):
     dataset = torch.zeros((retrain_after_iter, ctrl.nx + ctrl.nu), device=ctrl.device)
     total_reward = 0
     for i in range(iter):
         state = env.unwrapped.state.copy()
-        # command_start = time.perf_counter()
         action = ctrl.command(state)
-        # elapsed = time.perf_counter() - command_start
         res = env.step(action.cpu().numpy())
         s, r = res[0], res[1]
         total_reward += r
-        # logger.debug("action taken: %.4f cost received: %.4f time taken: %.5fs", action, -r, elapsed)
         if render:
             env.render()
 
@@ -59,19 +44,7 @@ if __name__ == "__main__":
     dtype = torch.double
 
     noise_sigma = torch.tensor([1], device=d, dtype=dtype)
-    # noise_sigma = torch.tensor([[10, 0], [0, 10]], device=d, dtype=dtype)
     lambda_ = 1e-2
-    # lambda_ = 1.
-
-    import random
-
-    # randseed = 24
-    # if randseed is None:
-    #     randseed = random.randint(0, 1000000)
-    # random.seed(randseed)
-    # np.random.seed(randseed)
-    # torch.manual_seed(randseed)
-    # logger.info("random seed %d", randseed)
 
     # new hyperparmaeters for approximate dynamics
     H_UNITS = 32
@@ -141,20 +114,14 @@ if __name__ == "__main__":
 
 
     def running_cost(state, action):
-        # theta = state[:, 0]
-        # theta_dt = state[:, 1]
-        # action = action[:, 0]
         horizon = 15
         gamma = 0.99  # discount factor
-        # cost = angle_normalize(theta) ** 2 + 0.1 * theta_dt ** 2
         batch_size = state.shape[0]
         costs = torch.zeros(batch_size, horizon)  # Initialize cost accumulator
         
         for t in range(horizon):
             theta = state[:, t, 0]
             theta_dt = state[:, t, 1]
-            # print("state.shape ", state.shape, "\n")
-            # print("action.shape ", action.shape, "\n")
             a = action[:, t,  0]
             cost = angle_normalize(theta) ** 2 + 0.1 * theta_dt ** 2 + 0.01*a**2
 
@@ -173,7 +140,6 @@ if __name__ == "__main__":
 
         np.savez(
         save_path,
-        # f"{prob}_{method_name}_results_June25.npz",
         episode_rewards=episodic_rep_returns,
         mean_rewards=mean_episodic_returns,
         std_rewards=std_episodic_returns
@@ -234,37 +200,24 @@ if __name__ == "__main__":
         dtheta = angular_diff_batch(yp[:, 0], yt[:, 0])
         dtheta_dt = yp[:, 1] - yt[:, 1]
         E = torch.cat((dtheta.view(-1, 1), dtheta_dt.view(-1, 1)), dim=1).norm(dim=1)
-        # # Printing logging info
-        # logger.info("Error with true dynamics theta %f theta_dt %f norm %f", dtheta.abs().mean(),
-        #             dtheta_dt.abs().mean(), E.mean())
-        # logger.debug("Start next collection sequence")
 
-
-    # downward_start = True
-    env = gym.make(ENV_NAME) # , render_mode="human"  # bypass the default TimeLimit wrapper
+    env = gym.make(ENV_NAME)
     env = env.unwrapped
-    # state = unwrapped_env.state
+
     state, info = env.reset()
-    # print("state ", state, "\n")
-    # print("env.state ", env.state, "\n")
-    # if downward_start:
-    #     env.state = env.unwrapped.state = [np.pi, 1]
 
     # bootstrap network with random actions
     if BOOT_STRAP_ITER:
         # logger.info("bootstrapping with random action for %d actions", BOOT_STRAP_ITER)
         new_data = np.zeros((BOOT_STRAP_ITER, nx + nu))
         for i in range(BOOT_STRAP_ITER):
-            # pre_action_state = state # env.state
             pre_action_state = env.state
             action = np.random.uniform(low=ACTION_LOW, high=ACTION_HIGH)
             env.step([action])
-            # env.render()
             new_data[i, :nx] = pre_action_state
             new_data[i, nx:] = action
 
         train(new_data)
-        # logger.info("bootstrapping finished")
         print("bootstrapping finished \n")
         
         # Save the initial weights after bootstrapping
@@ -277,16 +230,6 @@ if __name__ == "__main__":
     prob = "Pendulum"
     max_steps = 200
     
-    # N_SAMPLES = 200 is the number of steps per episode
-    # mppi_gym = mppi.MPPI(dynamics, running_cost, nx, noise_sigma, num_samples=N_SAMPLES, horizon=TIMESTEPS,
-    #                     lambda_=lambda_, device=d, u_min=torch.tensor(ACTION_LOW, dtype=torch.double, device=d),
-    #                     u_max=torch.tensor(ACTION_HIGH, dtype=torch.double, device=d))
-    
-    # icem_gym = icem.iCEM(dynamics, icem.accumulate_running_cost(running_cost), nx, nu, sigma=noise_sigma,
-    #                  warmup_iters=5, online_iters=5,
-    #                  num_samples=N_SAMPLES, num_elites=10, horizon=TIMESTEPS, device=d, )
-    
-    
     for seed in env_seeds:
         episodic_return = []
         # Reset network to initial pretrained weights
@@ -295,20 +238,14 @@ if __name__ == "__main__":
         for episode in range(max_episodes):
             env.reset(seed=seed)
 
-            # # N_SAMPLES = 200 is the number of steps per episode
-            # mppi_gym = mppi.MPPI(dynamics, running_cost, nx, noise_sigma, num_samples=N_SAMPLES, horizon=TIMESTEPS,
-            #                     lambda_=lambda_, device=d, u_min=torch.tensor(ACTION_LOW, dtype=torch.double, device=d),
-            #                     u_max=torch.tensor(ACTION_HIGH, dtype=torch.double, device=d))
+            
             icem_gym = icem.iCEM(dynamics, icem.accumulate_running_cost(running_cost), nx, nu, sigma=noise_sigma,
                      warmup_iters=5, online_iters=5,
                      num_samples=N_SAMPLES, num_elites=10, horizon=TIMESTEPS, device=d, )
             
             total_reward, data = icem.run_icem(icem_gym, seed, env, train, iter=max_steps, render=False, prob=prob) # mppi.run_mppi(mppi_gym, seed, env, train, iter=max_episodes, render=False)
-            # total_reward, data = mppi.run_mppi(mppi_gym, seed, env, train, iter=max_steps, render=False, prob = prob) # mppi.run_mppi(mppi_gym, env, train, iter=max_steps, render=False)
             episodic_return.append(total_reward)
             
-            # logger.info("Total reward %f", total_reward)
-
         episodic_return_seeds.append(episodic_return)
         
     episodic_return_seeds = np.array(episodic_return_seeds)
@@ -323,3 +260,4 @@ if __name__ == "__main__":
     
     save_data(prob, method_name, episodic_return_seeds, mean_episodic_return, std_episodic_return)
     print("Saved data \n")
+    

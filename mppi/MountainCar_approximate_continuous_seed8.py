@@ -2,22 +2,13 @@
 Same as approximate dynamics, but now the input is sine and cosine of theta (output is still dtheta)
 This is a continuous representation of theta, which some papers show is easier for a NN to learn.
 """
-# import gym
 import gymnasium as gym
 import numpy as np
 import torch
 import logging
 import math
-# from pytorch_mppi import mppi
 from pytorch_mppi_folder import mppi_modified as mppi
-# from gym import logger as gym_log
 import os
-
-# gym_log.set_level(gym_log.INFO)
-# logger = logging.getLogger(__name__)
-# logging.basicConfig(level=logging.INFO,
-#                     format='[%(levelname)s %(asctime)s %(pathname)s:%(lineno)d] %(message)s',
-#                     datefmt='%m-%d %H:%M:%S')
 
 if __name__ == "__main__":
     ENV_NAME = "MountainCarContinuous-v0"
@@ -30,19 +21,7 @@ if __name__ == "__main__":
     dtype = torch.double
 
     noise_sigma = torch.tensor(1, device=d, dtype=dtype)
-    # noise_sigma = torch.tensor([[10, 0], [0, 10]], device=d, dtype=dtype)
     lambda_ = 1e-2
-    # lambda_ = 1.
-
-    import random
-
-    # randseed = 24
-    # if randseed is None:
-    #     randseed = random.randint(0, 1000000)
-    # random.seed(randseed)
-    # np.random.seed(randseed)
-    # torch.manual_seed(randseed)
-    # logger.info("random seed %d", randseed)
 
     # new hyperparmaeters for approximate dynamics
     H_UNITS = 32
@@ -94,15 +73,8 @@ if __name__ == "__main__":
         return torch.cat((position, velocity), dim=1)
 
     def running_cost(state, action, t):
-        # goal = 0.45
-        # position = state[:, 0]
-        # velocity = state[:, 1]
-        # force = action[:, 0]
-        # cost = (goal - position) ** 2 + 0.1 * velocity ** 2 + 0.001 * (force ** 2)
-        # return cost
         horizon = 30
         gamma = 0.5
-        # gamma = 0.1
         goal = 0.45
         position = state[:, 0]
         velocity = state[:, 1]
@@ -110,23 +82,7 @@ if __name__ == "__main__":
         cost = (goal - position) ** 2
         reverse_discount_factor = gamma**(horizon-t-1)
         distance_reward = reverse_discount_factor*cost
-        #+ 0.1 * velocity ** 2 + 0.001 * (force ** 2)
-        return cost
-
-    # def save_data(prob, method_name, episodic_rep_returns, mean_episodic_returns, std_episodic_returns):
-
-    #     # Get the folder where this script is located
-    #     origin_folder = os.path.dirname(os.path.abspath(__file__))
-    #     # Construct full path to save
-    #     save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_June27.npz")
-
-    #     np.savez(
-    #     save_path,
-    #     # f"{prob}_{method_name}_results.npz",
-    #     episode_rewards=episodic_rep_returns,
-    #     mean_rewards=mean_episodic_returns,
-    #     std_rewards=std_episodic_returns
-    #     )
+        return distance_reward
 
     dataset = None
     # create some true dynamics validation set to compare model against
@@ -154,24 +110,9 @@ if __name__ == "__main__":
         else:
             dataset = torch.cat((dataset, new_data), dim=0)
 
-        # train on the whole dataset (assume small enough we can train on all together)
-        # XU = dataset
-        # dtheta = angular_diff_batch(XU[1:, 0], XU[:-1, 0])
-        # dtheta_dt = XU[1:, 1] - XU[:-1, 1]
-        # Y = torch.cat((dtheta.view(-1, 1), dtheta_dt.view(-1, 1)), dim=1)  # x' - x residual
-        # xu = XU[:-1]  # make same size as Y
-        # xu = torch.cat((torch.sin(xu[:, 0]).view(-1, 1), torch.cos(xu[:, 0]).view(-1, 1), xu[:, 1:]), dim=1)
-
-        # Y = dataset[1:, :nx] - dataset[:-1, :nx]
-        # xu = dataset[:-1, :]
         
         # train on the whole dataset (assume small enough we can train on all together)
         XU = dataset
-        # dx = XU[1:, 0], XU[:-1, 0]
-        # dv = XU[1:, 1] - XU[:-1, 1]
-        # Y = torch.cat((dx.view(-1, 1), dv.view(-1, 1)), dim=1)  # x' - x residual
-        # xu = XU[:-1]  # make same size as Y
-        # xu = torch.cat(dx.view(-1, 1), dv.view(-1, 1), xu[:, 1:], dim=1)
         
         dx = XU[1:, 0] - XU[:-1, 0]
         dv = XU[1:, 1] - XU[:-1, 1]
@@ -192,7 +133,6 @@ if __name__ == "__main__":
             loss = (Y - Yhat).norm(2, dim=1) ** 2
             loss.mean().backward()
             optimizer.step()
-            # logger.debug("ds %d epoch %d loss %f", dataset.shape[0], epoch, loss.mean().item())
 
         # freeze network
         for param in network.parameters():
@@ -201,39 +141,24 @@ if __name__ == "__main__":
         # evaluate network against true dynamics
         yt = true_dynamics(statev, actionv)
         yp = dynamics(statev, actionv)
-        # print("yt.shape ", yt.shape, "\n")
-        # print("yp.shape ", yp.shape, "\n")
-        # print(yp[:, 0].shape, yt[:, 0].shape, "\n")
+
         dx = yp[:, 0] - yt[:, 0]
         dv = yp[:, 1] - yt[:, 1]
-        # print("dx.shape ", type(dx[0]), "\n")
-        # print("dv.shape ", dv, "\n")
+
         E = torch.cat((dx.view(-1, 1), dv.view(-1, 1)), dim=1).norm(dim=1)
-        # logger.info("Error with true dynamics dx %f dv %f norm %f", dx.abs().mean(),
-        #             dv.abs().mean(), E.mean())
-        # logger.debug("Start next collection sequence")
+
         
-    # downward_start = True
-    env = gym.make(ENV_NAME) # , render_mode="human"  # bypass the default TimeLimit wrapper
+    env = gym.make(ENV_NAME)
     env = env.unwrapped
     state, info = env.reset()
-    # state, info = env.reset()
-    # print("state", state)
-    # print("env.state", env.state)
-    # if downward_start:
-    #     # env.state = env.unwrapped.state = [np.pi, 1]
-    #     env.state = env.unwrapped.state = [0, 0]
 
     # bootstrap network with random actions
     if BOOT_STRAP_ITER:
-        # logger.info("bootstrapping with random action for %d actions", BOOT_STRAP_ITER)
         new_data = np.zeros((BOOT_STRAP_ITER, nx + nu))
         for i in range(BOOT_STRAP_ITER):
-            # pre_action_state = state # env.state
             pre_action_state = env.state
             action = np.random.uniform(low=ACTION_LOW, high=ACTION_HIGH)
             state, reward, terminated, truncated, info = env.step([action])
-            # env.render()
             new_data[i, :nx] = pre_action_state
             new_data[i, nx:] = action
 
@@ -242,7 +167,6 @@ if __name__ == "__main__":
                 state, info = env.reset()
 
         train(new_data)
-        # logger.info("bootstrapping finished")
         print("bootstrapping finished \n")
         
         # Save the initial weights after bootstrapping
@@ -262,51 +186,22 @@ if __name__ == "__main__":
     network.load_state_dict(initial_state_dict)
     
     mppi_gym = mppi.MPPI(dynamics, running_cost, nx, noise_sigma, num_samples=N_SAMPLES, horizon=TIMESTEPS,
-            lambda_=lambda_, device=d, u_min=torch.tensor(ACTION_LOW, dtype=torch.double, device=d),
-            u_max=torch.tensor(ACTION_HIGH, dtype=torch.double, device=d), prob=prob)
+        lambda_=lambda_, device=d, u_min=torch.tensor(ACTION_LOW, dtype=torch.double, device=d),
+        u_max=torch.tensor(ACTION_HIGH, dtype=torch.double, device=d), prob=prob)
     
     for episode in range(max_episodes):
         env.reset(seed=seed)
-
-        # N_SAMPLES = 200 is the number of steps per episode
-        # mppi_gym = mppi.MPPI(dynamics, running_cost, nx, noise_sigma, num_samples=N_SAMPLES, horizon=TIMESTEPS,
-        #                     lambda_=lambda_, device=d, u_min=torch.tensor(ACTION_LOW, dtype=torch.double, device=d),
-        #                     u_max=torch.tensor(ACTION_HIGH, dtype=torch.double, device=d))
+        
         total_reward, data = mppi.run_mppi(mppi_gym, seed, env, train, iter=max_steps, render=False, prob=prob) # mppi.run_mppi(mppi_gym, seed, env, train, iter=max_episodes, render=False)
         episodic_return.append(total_reward)
-        
-        # logger.info("Total reward %f", total_reward)
-
-    # episodic_return_seeds.append(episodic_return)
-        
-    # episodic_return_seeds = np.array(episodic_return_seeds)
-
-    # mean_episodic_return = np.mean(episodic_return_seeds, axis=0)
-    # std_episodic_return = np.std(episodic_return_seeds, axis=0)
-    
-    # print("max_episodes", max_episodes, "\n")
-    # print("episodic_return_seeds.shape ", episodic_return_seeds.shape, "\n")
-    # print("mean_episodic_return ", mean_episodic_return.shape, "\n")
-    # print("std_episodic_return.shape ", std_episodic_return.shape, "\n")
     
     episodic_return = np.array(episodic_return)
     
     # Get the folder where this script is located
     origin_folder = os.path.dirname(os.path.abspath(__file__))
     # Construct full path to save
-    save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_seed{seed}_June27.npz")
+    save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_seed{seed}_July18.npz")
     np.savez(save_path, episodic_return)
     
-    # save_data(prob, method_name, episodic_return_seeds, mean_episodic_return, std_episodic_return)
     print("Saved data \n")
     env.close()
-
-    # env.reset()
-    # # if downward_start:
-    # #     env.state = env.unwrapped.state = [np.pi, 1]
-
-    # mppi_gym = mppi.MPPI(dynamics, running_cost, nx, noise_sigma, num_samples=N_SAMPLES, horizon=TIMESTEPS,
-    #                      lambda_=lambda_, device=d, u_min=torch.tensor(ACTION_LOW, dtype=torch.double, device=d),
-    #                      u_max=torch.tensor(ACTION_HIGH, dtype=torch.double, device=d))
-    # total_reward, data = mppi.run_mppi(mppi_gym, env, train)
-    # logger.info("Total reward %f", total_reward)

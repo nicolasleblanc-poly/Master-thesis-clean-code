@@ -6,6 +6,7 @@ import numpy as np
 from gymnasium import logger, spaces
 from gymnasium.error import DependencyNotInstalled
 
+# Taken from: https://github.com/facebookresearch/mbrl-lib
 
 class CartPoleContinuousEnv(gym.Env):
     # This is a continuous version of gym's cartpole environment, with the only difference

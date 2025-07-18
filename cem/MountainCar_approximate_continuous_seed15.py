@@ -84,7 +84,7 @@ if __name__ == "__main__":
         cost = (goal - position) ** 2
         reverse_discount_factor = gamma**(horizon-t-1)
         distance_reward = reverse_discount_factor*cost
-        return cost
+        return distance_reward
 
     dataset = None
     # create some true dynamics validation set to compare model against
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     # Get the folder where this script is located
     origin_folder = os.path.dirname(os.path.abspath(__file__))
     # Construct full path to save
-    save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_seed{seed}_June27.npz")
+    save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_seed{seed}_July18.npz")
     np.savez(save_path, episodic_return)
     
     print("Saved data \n")

@@ -4,7 +4,7 @@ import random
 from scipy.optimize import minimize
 from state_pred_models import quantile_loss
 from ASNN import train_ActionSequenceNN
-from choose_action import choose_action_func, choose_action_func_LBFGSB
+from choose_action_QRNN import choose_action_func_QRNN, choose_action_func_LBFGSB
 
 def start_QRNN_MPC_wASGNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, optimizer_QRNN, model_ASN, replay_buffer_ASN, optimizer_ASN, do_RS, use_sampling, use_mid, use_ASGNN):
     
@@ -363,7 +363,7 @@ def start_QRNN_MPC_wASGNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, 
             
             particles = np.clip(particles, prob_vars.action_low, prob_vars.action_high)
 
-            best_particle, action, best_cost, particles = choose_action_func(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASGNN, model_QRNN, model_ASN, episode=episode, step=step, goal_state=prob_vars.goal_state)
+            best_particle, action, best_cost, particles = choose_action_func_QRNN(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASGNN, model_QRNN, model_ASN, episode=episode, step=step, goal_state=prob_vars.goal_state)
             # best_particle, particles, cost = particle_filtering_cheating(particles, env, state, horizon, nb_reps=5, using_Env=usingEnv, episode=episode, step=step)
             
             costs.append(best_cost)
@@ -672,7 +672,7 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
 
             particles = np.clip(particles, prob_vars.action_low, prob_vars.action_high)
 
-            best_particle, action, best_cost, particles = choose_action_func(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASGNN, model_QRNN, model_ASN, episode=episode, step=step, goal_state=prob_vars.goal_state)
+            best_particle, action, best_cost, particles = choose_action_func_QRNN(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASGNN, model_QRNN, model_ASN, episode=episode, step=step, goal_state=prob_vars.goal_state)
             # best_particle, action, best_cost, particles = choose_action(prob_vars.prob, state, horizon, particles, do_RS, use_sampling, use_mid, use_ASGNN, model_QRNN, model_ASN, action_dim, action_low, action_high, states_low, states_high, nb_reps_MPC, std, change_prob, nb_top_particles, nb_random, episode=episode, step=step, goal_state=goal_state)
             
             # best_particle, particles, cost = particle_filtering_cheating(particles, env, state, horizon, nb_reps=5, using_Env=usingEnv, episode=episode, step=step)

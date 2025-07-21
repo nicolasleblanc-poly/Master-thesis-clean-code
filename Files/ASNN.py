@@ -9,7 +9,7 @@ import numpy as np
 # Define a named tuple for transitions
 Transition = namedtuple('Transition', ('states', 'goal_states', 'outputs'))
 
-class ReplayBuffer_ASGNN:
+class ReplayBuffer_ASNN:
     def __init__(self, capacity):
         self.memory = deque([], maxlen=capacity)
 

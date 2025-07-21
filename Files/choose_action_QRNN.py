@@ -2,10 +2,10 @@ import numpy as np
 import random
 import torch
 
-from mpc import mpc_func
+from mpc_QRNN import mpc_QRNN_func
 from particle_filtering import particle_filtering_func, discrete_cem_func, continuous_cem_func
 
-def choose_action_func(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASGNN, model_QRNN, model_ASN, episode=0, step=1, goal_state=None):
+def choose_action_func_QRNN(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASGNN, model_QRNN, model_ASN, episode=0, step=1, goal_state=None):
 
     best_cost = float('inf')
     best_action_sequence = None
@@ -19,7 +19,7 @@ def choose_action_func(prob_vars, state, particles, do_RS, use_sampling, use_mid
             
         sim_states = torch.tensor(state, dtype=torch.float32).repeat(prob_vars.num_particles, 1)
 
-        costs = mpc_func(prob_vars, sim_states, particles, use_ASGNN, model_QRNN, use_sampling, use_mid, model_ASN)
+        costs = mpc_QRNN_func(prob_vars, sim_states, particles, use_ASGNN, model_QRNN, use_sampling, use_mid, model_ASN)
 
         min_idx = torch.argmin(costs)
         

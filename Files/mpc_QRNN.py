@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from state_pred_models import get_mid_quantile
 
-def mpc_func(prob_vars, sim_states, particles, use_ASGNN, model_QRNN, use_sampling, use_mid, model_ASN=None): # , use_LBFGSB=False
+def mpc_QRNN_func(prob_vars, sim_states, particles, use_ASGNN, model_QRNN, use_sampling, use_mid, model_ASN=None): # , use_LBFGSB=False
     horizon = prob_vars.horizon
     num_particles = prob_vars.num_particles
     action_dim = prob_vars.action_dim
@@ -26,7 +26,7 @@ def mpc_func(prob_vars, sim_states, particles, use_ASGNN, model_QRNN, use_sampli
                 for loop_iter in range(num_particles):
                     particles[loop_iter, -action_dim:] = np.random.normal(action_mus.detach().numpy()[loop_iter], action_sigmas.detach().numpy()[loop_iter])
 
-        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
             particles_t_array = particles[:, h * action_dim : (h + 1) * action_dim]
         else:
             particles_t_array = particles[:, h]
@@ -85,7 +85,7 @@ def mpc_func(prob_vars, sim_states, particles, use_ASGNN, model_QRNN, use_sampli
         sim_states = next_states
         sim_states = torch.clip(sim_states, prob_vars.states_low, prob_vars.states_high)
         
-        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
             costs += prob_vars.compute_cost(prob_vars.prob, next_states, h, horizon, actions, prob_vars.goal_state)
             
         else:

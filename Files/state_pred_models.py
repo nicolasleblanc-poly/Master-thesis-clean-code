@@ -58,7 +58,7 @@ def quantile_loss(predicted, target, quantiles, batch_size=32):
 
 def get_mid_quantile(num_quantiles, predicted_quantiles):
     lower_quantile = predicted_quantiles[:, 0, :]  # Shape: (1, state_dim)
-    mid_quantile = predicted_quantiles[:, int(num_quantiles/2), :].detach().numpy()  # Shape: (1, state_dim)
+    mid_quantile = predicted_quantiles[:, int(num_quantiles/2), :]#.detach().numpy()  # Shape: (1, state_dim)
     upper_quantile = predicted_quantiles[:, -1, :]  # Shape: (1, state_dim)
     return mid_quantile
 

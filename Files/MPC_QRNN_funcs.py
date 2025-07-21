@@ -3,7 +3,7 @@ import torch
 import random
 from state_pred_models import quantile_loss, train_QRNN
 from ASNN import train_ActionSequenceNN
-from choose_action import choose_action_func
+from choose_action_QRNN import choose_action_func_QRNN
 from RndUniformGeneratedActionSequences import generate_random_action_sequences
 from ShiftParticlesReplaceWithRandom import ShiftParticlesReplaceWithRandom_func
 from GenerateParticlesUsingASNN import GenerateParticlesUsingASNN_func_QRNN
@@ -22,7 +22,7 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
         actions_list = []
         if prob_vars.prob == "Pendulum":
             state = env.state.copy()
-        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense":
+        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
             prob_vars.goal_state = state['desired_goal'] # 3 components for Reach and for Push
             state = state['observation']
         if prob_vars.prob == "MuJoCoReacher":
@@ -47,7 +47,7 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
             
             particles = np.clip(particles, prob_vars.action_low, prob_vars.action_high)
 
-            best_particle, action, best_cost, particles = choose_action_func(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASNN, model_QRNN, model_ASNN, episode=episode, step=step, goal_state=prob_vars.goal_state)
+            best_particle, action, best_cost, particles = choose_action_func_QRNN(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASNN, model_QRNN, model_ASNN, episode=episode, step=step, goal_state=prob_vars.goal_state)
             # best_particle, particles, cost = particle_filtering_cheating(particles, env, state, horizon, nb_reps=5, using_Env=usingEnv, episode=episode, step=step)
             
             costs.append(best_cost)
@@ -56,7 +56,7 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
                 action = [best_particle[0]]
                 actions_list.append(list(action))
             
-            elif prob_vars.prob == "PanadaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense":
+            elif prob_vars.prob == "PanadaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
                 action = best_particle[:prob_vars.action_dim]
             
             elif prob_vars.prob == "CartPole" or prob_vars.prob == "Acrobot" or prob_vars.prob == "MountainCar" or prob_vars.prob == "LunarLander":
@@ -71,7 +71,7 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
             if prob_vars.prob == "Pendulum":
                 next_state = env.state.copy()
 
-            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense":
+            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
                 prob_vars.goal_state = next_state['desired_goal'] # 3 components
                 next_state = next_state['observation']
                 
@@ -114,7 +114,7 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
 
         episode_success_rate_withASNN.append(nb_episode_success/(episode+1)) # Episodic success rate for Panda Gym envs
 
-    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
         return episode_reward_list_withASNN, episode_success_rate_withASNN
     else:
         return episode_reward_list_withASNN
@@ -136,7 +136,7 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
         actions_list = []
         if prob_vars.prob == "Pendulum":
             state = env.state.copy()
-        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense":
+        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
             prob_vars.goal_state = state['desired_goal'] # 3 components
             state = state['observation']#[:3] # 6 components for Reacher, 18 components for Pusher
         if prob_vars.prob == "MuJoCoReacher":
@@ -162,7 +162,7 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
 
             particles = np.clip(particles, prob_vars.action_low, prob_vars.action_high)
 
-            best_particle, action, best_cost, particles = choose_action_func(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASNN, model_QRNN, model_ASNN, episode=episode, step=step, goal_state=prob_vars.goal_state)
+            best_particle, action, best_cost, particles = choose_action_func_QRNN(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASNN, model_QRNN, model_ASNN, episode=episode, step=step, goal_state=prob_vars.goal_state)
             
             actions_list.append(action)
             
@@ -171,7 +171,7 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
             if prob_vars.prob == "Pendulum" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "Pendulum_xyomega" or prob_vars.prob == "InvertedPendulum" or prob_vars.prob == "CartPoleContinuous":
                 action = [best_particle[0]]
             
-            elif prob_vars.prob == "PanadaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense":
+            elif prob_vars.prob == "PanadaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
                 action = best_particle[:prob_vars.action_dim]
             
             elif prob_vars.prob == "CartPole" or prob_vars.prob == "Acrobot" or prob_vars.prob == "MountainCar" or prob_vars.prob == "LunarLander":
@@ -186,7 +186,7 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
             if prob_vars.prob == "Pendulum":
                 # state = env.state.copy()
                 next_state = env.state.copy()
-            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense":
+            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
                 prob_vars.goal_state = next_state['desired_goal'] # 3 components
                 next_state = next_state['observation']#[:3] # 6 components
             if prob_vars.prob == "MuJoCoReacher":
@@ -220,7 +220,7 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
 
         episode_success_rate.append(nb_episode_success/(episode+1)) # Episodic success rate for Panda Gym envs
 
-    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
         return episode_reward_list, episode_success_rate
     else:
         return episode_reward_list

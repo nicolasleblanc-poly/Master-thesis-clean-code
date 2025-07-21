@@ -10,7 +10,7 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
 
     costs = torch.zeros(prob_vars.num_particles)
     
-    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher":
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
         og_state_id = prob_vars.env.save_state()
         
         state_ids = np.array([prob_vars.env.save_state() for _ in range(num_particles)], dtype=object)
@@ -32,7 +32,7 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
                 for loop_iter in range(num_particles):
                     particles[loop_iter, -action_dim:] = np.random.normal(action_mus.detach().numpy()[loop_iter], action_sigmas.detach().numpy()[loop_iter])
 
-        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
             particles_t_array = particles[:, h * action_dim : (h + 1) * action_dim]
         else:
             particles_t_array = particles[:, h]
@@ -45,9 +45,14 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
         next_states = []
         for i in range(prob_vars.num_particles):
             
-            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher":
+            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
                 prob_vars.env.restore_state(state_ids[i])
                 prob_vars.env.remove_state(state_ids[i])
+                
+                next_state_step, reward, terminated, truncated, info = prob_vars.env.step(actions[i].numpy())
+                
+                state_ids[i] = prob_vars.env.save_state()
+                next_states.append(next_state_step['observation'])
                 
             elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
                 if h >0:
@@ -60,27 +65,33 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
                     if isinstance(sim_states, torch.Tensor):
                         sim_states.detach().cpu().numpy()
                     env_i.state = sim_states # .numpy() # Set the initial state of the environment
+                    
+                next_state_step, reward, terminated, truncated, info = env_i.step(actions[i].numpy())
+                
+                next_state = env_i.state
+                next_states.append(next_state)
+                
             else:
                 print("Env isn't supported use the env as a model of the env for MPC")
             
-            next_state_step, reward, terminated, truncated, info = env_i.step(actions[i].numpy())
-            
-            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher":
-                state_ids[i] = prob_vars.env.save_state()
-                next_states.append(next_state_step['observation'])
-            elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
-                next_state = env_i.state
-                next_states.append(next_state)
+            # if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher":
+            #     state_ids[i] = prob_vars.env.save_state()
+            #     next_states.append(next_state_step['observation'])
+            # elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
+            #     next_state = env_i.state
+            #     next_states.append(next_state)
             # next_states.append(next_state)
 
         # next_states = model_state(sim_states, actions)
 
         # Update state and accumulate cost
         # sim_states = next_states
-        sim_states = torch.tensor(next_states, dtype=torch.float32)
+        next_states = torch.tensor(np.array(next_states), dtype=torch.float32, device=sim_states.device)
+        # sim_states = torch.tensor(next_states, dtype=torch.float32)
+        sim_states = next_states
         sim_states = torch.clip(sim_states, prob_vars.states_low, prob_vars.states_high)
         
-        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
             costs += prob_vars.compute_cost(prob_vars.prob, next_states, h, horizon, actions, prob_vars.goal_state)
             
         else:

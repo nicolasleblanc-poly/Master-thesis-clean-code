@@ -2,7 +2,7 @@ import numpy as np
 import random
 import torch
 
-from mpc import mpc_func
+# from mpc_QRNN import mpc_QRNN_func
 
 def particle_filtering_func(prob_vars, particles, costs, best_action_sequence):
 
@@ -57,7 +57,7 @@ def particle_filtering_func(prob_vars, particles, costs, best_action_sequence):
         
         particles[1:prob_vars.num_particles-prob_vars.nb_random] = np.clip(sampled_particles + noise, prob_vars.action_low, prob_vars.action_high)
         
-        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense":
+        if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
             
             particles[prob_vars.num_particles-prob_vars.nb_random:] = np.random.uniform(prob_vars.action_low, prob_vars.action_high, (prob_vars.nb_random, prob_vars.horizon*prob_vars.action_dim))
             best_first_action = best_action_sequence[:prob_vars.action_dim] # .item()
@@ -95,13 +95,13 @@ def discrete_cem_func(prob_vars, particles, costs, best_action_sequence):
     for t in range(horizon):
         new_particles[:, t] = np.random.choice(num_actions, size=num_particles, p=position_probs[t])
 
-    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense":
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
  
-        particles[prob_vars.num_particles-prob_vars.nb_random:] = np.random.uniform(prob_vars.action_low, prob_vars.action_high, (prob_vars.nb_random, prob_vars.horizon*prob_vars.action_dim))
+        # particles[prob_vars.num_particles-prob_vars.nb_random:] = np.random.uniform(prob_vars.action_low, prob_vars.action_high, (prob_vars.nb_random, prob_vars.horizon*prob_vars.action_dim))
         best_first_action = best_action_sequence[:prob_vars.action_dim] # .item()
     
     else: # Pendulum, MountainCarContinuous
-        particles[prob_vars.num_particles-prob_vars.nb_random:] = np.random.uniform(prob_vars.action_low, prob_vars.action_high, (prob_vars.nb_random, prob_vars.horizon))
+        # particles[prob_vars.num_particles-prob_vars.nb_random:] = np.random.uniform(prob_vars.action_low, prob_vars.action_high, (prob_vars.nb_random, prob_vars.horizon))
         best_first_action = best_action_sequence[0].item()
 
     return best_first_action, new_particles

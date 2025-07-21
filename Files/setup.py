@@ -946,15 +946,16 @@ class setup_class:
             # self.std = 1.5
             self.change_prob = None
             
-            self.std_string = "1em1"
+            self.std_string = "3em1"
             
             self.goal_state = None # Defined when resetting the env
             
             self.nb_top_particles = 5
             # nb_random = 10
             
-            # env = gym.make("PandaPush-v3").unwrapped # Reward only when the end effector is at the goal position
-            self.env = gym.make('PandaPushDense-v3', render_mode="rgb_array").unwrapped # Reward at each time step based on the distance to the goal position
+            # env = gym.make("PandaPush-v3")/ .unwrapped # Reward only when the end effector is at the goal position
+            self.env = gym.make('PandaPush-v3', render_mode="rgb_array").unwrapped
+            # self.env = gym.make('PandaPushDense-v3', render_mode="rgb_array").unwrapped # Reward at each time step based on the distance to the goal position
             
             # Hyperparameters    
             self.actions_low = self.env.action_space.low #[:3]
@@ -979,7 +980,7 @@ class setup_class:
                 
                 goal_state = torch.tensor(goal_state, dtype=torch.float32, device=states.device).reshape(1, 3)
                 end_effector_vel = states[:, 3:6]
-                costs = torch.norm(states[:, :3]-states[:, 6:9], dim=1)+torch.norm(states[:, 6:9]-goal_state, dim=1)+0.01*(torch.norm(end_effector_vel, dim=1))**2
+                costs = torch.norm(states[:, :3]-states[:, 6:9], dim=1)+torch.norm(states[:, 6:9]-goal_state, dim=1) # +0.01*(torch.norm(end_effector_vel, dim=1))**2
                 
                 # print("cost1 ", torch.norm(states[0, :3]-states[0, 6:9])+torch.norm(states[0, 6:9]-goal_state), '\n')
                 # print("cost2 ", torch.norm(states[1, :3]-states[1, 6:9])+torch.norm(states[1, 6:9]-goal_state), '\n')
@@ -988,6 +989,66 @@ class setup_class:
                 return costs
             
             self.compute_cost_PandaPusher = compute_cost_PandaPusher
+            
+        elif prob == "PandaPusherDense": # ToDo
+            self.discrete = False
+            self.horizon = 15
+            self.max_episodes = 400
+            self.max_steps = 50
+
+            # For test
+            # self.max_episodes = 3
+            # self.max_steps = 5
+
+            # self.std = 1e-1
+            self.std = 3e-1
+            # self.std = 1
+            # self.std = 1.5
+            self.change_prob = None
+            
+            self.std_string = "3em1"
+            
+            self.goal_state = None # Defined when resetting the env
+            
+            self.nb_top_particles = 5
+            # nb_random = 10
+            
+            # env = gym.make("PandaPush-v3")/ .unwrapped # Reward only when the end effector is at the goal position
+            # self.env = gym.make('PandaPush-v3', render_mode="rgb_array").unwrapped
+            self.env = gym.make('PandaPushDense-v3', render_mode="rgb_array").unwrapped # Reward at each time step based on the distance to the goal position
+            
+            # Hyperparameters    
+            self.actions_low = self.env.action_space.low #[:3]
+            self.actions_high = self.env.action_space.high #[:3]
+            self.states_low = self.env.observation_space['observation'].low #[:3]
+            self.states_high = self.env.observation_space['observation'].high #[:3]
+            self.state_dim = len(self.states_low)
+            self.action_dim = len(self.actions_low)
+            self.action_low = self.actions_low[0]
+            self.action_high = self.actions_high[0]
+            self.goal_state_dim = 3 #len(states_low)
+
+            self.states_low = torch.tensor([-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10])
+            self.states_high = torch.tensor([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10])
+            
+            def compute_cost_PandaPusherDense(states, t, horizon, actions, goal_state=None):
+                # print("goal_state ", goal_state, "\n")
+                # print("states[0] ", states[0], "\n")
+                # print("states.shape ", states.shape, "\n")
+                # print("states[:, :3].shape ", states[:, :3].shape, "\n")
+                # print("states[:, 6:9].shape ", states[:, 6:9].shape, "\n")
+                
+                goal_state = torch.tensor(goal_state, dtype=torch.float32, device=states.device).reshape(1, 3)
+                end_effector_vel = states[:, 3:6]
+                costs = torch.norm(states[:, :3]-states[:, 6:9], dim=1)+torch.norm(states[:, 6:9]-goal_state, dim=1) # +0.01*(torch.norm(end_effector_vel, dim=1))**2
+                
+                # print("cost1 ", torch.norm(states[0, :3]-states[0, 6:9])+torch.norm(states[0, 6:9]-goal_state), '\n')
+                # print("cost2 ", torch.norm(states[1, :3]-states[1, 6:9])+torch.norm(states[1, 6:9]-goal_state), '\n')
+                # print("costs ", costs, "\n")
+                
+                return costs
+            
+            self.compute_cost_PandaPusherDense = compute_cost_PandaPusherDense
 
         elif prob == "MuJoCoReacher":
             self.discrete = False
@@ -1129,6 +1190,8 @@ class setup_class:
             return self.compute_cost_PandaReacherDense(states, t, horizon, actions, goal_state)
         elif prob == "PandaPusher":
             return self.compute_cost_PandaPusher(states, t, horizon, actions, goal_state)
+        elif prob == "PandaPusherDense":
+            return self.compute_cost_PandaPusherDense(states, t, horizon, actions, goal_state)
         elif prob == "MuJoCoReacher":
             return self.compute_cost_MuJoCoReacher(states, t, horizon, actions, goal_state)
         elif prob == "MuJoCoPusher":

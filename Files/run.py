@@ -22,7 +22,7 @@ from ASNN import ReplayBuffer_ASGNN, ActionSequenceNN, gaussian_nll_loss, catego
 from setup import setup_class
 
 # Problem setup
-prob = "CartPole"
+# prob = "CartPole"
 # prob = "Acrobot"
 # prob = "MountainCar"
 # prob = "LunarLander"
@@ -31,7 +31,8 @@ prob = "CartPole"
 # prob = "MountainCarContinuous"
 # prob = "LunarLanderContinuous"
 # prob = "PandaReacher"
-# prob = "PandaPusher"
+prob = "PandaPusher"
+# prob = "PandaPusherDense"
 # prob = "MuJoCoReacher"
 # prob = "MuJoCoPusher"
 

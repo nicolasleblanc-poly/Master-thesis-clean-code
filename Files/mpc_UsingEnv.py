@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import copy
 
 def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
     horizon = prob_vars.horizon
@@ -8,6 +9,12 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
     nb_actions = prob_vars.nb_actions
 
     costs = torch.zeros(prob_vars.num_particles)
+    
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher":
+        og_state_id = prob_vars.env.save_state()
+        
+        state_ids = np.array([prob_vars.env.save_state() for _ in range(num_particles)], dtype=object)
+        state_ids[:] = prob_vars.env.save_state()  # Save the initial state of the environment
     
     for h in range(horizon):
         if use_ASGNN and h == horizon-1: # Replace last action column with ASGNN predictions
@@ -37,16 +44,34 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
         
         next_states = []
         for i in range(prob_vars.num_particles):
-            if h >0:
-                env_i = prob_vars.env.copy()  # Assuming prob_vars.env is an environment object with a copy method
-                env_i.reset(seed=prob_vars.seed)
-                env_i.state = sim_states[i].numpy()  # Set the initial state of the environment
-            else: # if h == 0:
-                env_i = prob_vars.env.copy()  # Assuming prob_vars.env is an environment object with a copy method
-                env_i.reset(seed=prob_vars.seed)
-                env_i.state = sim_states.numpy() # Set the initial state of the environment
-            next_state, reward, terminated, truncated, info = env_i.step(actions[i].numpy())
-            next_states.append(next_state)
+            
+            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher":
+                prob_vars.env.restore_state(state_ids[i])
+                prob_vars.env.remove_state(state_ids[i])
+                
+            elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
+                if h >0:
+                    env_i = copy.deepcopy(prob_vars.env)
+                    env_i.reset(seed=prob_vars.seed)
+                    env_i.state = sim_states[i].numpy()  # Set the initial state of the environment
+                else: # if h == 0:
+                    env_i = copy.deepcopy(prob_vars.env)
+                    env_i.reset(seed=prob_vars.seed)
+                    if isinstance(sim_states, torch.Tensor):
+                        sim_states.detach().cpu().numpy()
+                    env_i.state = sim_states # .numpy() # Set the initial state of the environment
+            else:
+                print("Env isn't supported use the env as a model of the env for MPC")
+            
+            next_state_step, reward, terminated, truncated, info = env_i.step(actions[i].numpy())
+            
+            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher":
+                state_ids[i] = prob_vars.env.save_state()
+                next_states.append(next_state_step['observation'])
+            elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
+                next_state = env_i.state
+                next_states.append(next_state)
+            # next_states.append(next_state)
 
         # next_states = model_state(sim_states, actions)
 
@@ -60,6 +85,8 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
             
         else:
             costs += prob_vars.compute_cost(prob_vars.prob, next_states, h, horizon, actions) # h, horizon,
+
+    prob_vars.env.restore_state(og_state_id)
 
     return costs
 

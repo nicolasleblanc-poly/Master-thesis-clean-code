@@ -32,8 +32,8 @@ import panda_gym # Need to comment when running on the cluster!
 # prob = "LunarLanderContinuous"
 # prob = "PandaReacher"
 # prob = "PandaReacherDense"
-# prob = "PandaPusher"
-prob = "PandaPusherDense"
+prob = "PandaPusher"
+# prob = "PandaPusherDense"
 # prob = "MuJoCoReacher"
 # prob = "MuJoCoPusher"
 

@@ -227,7 +227,7 @@ def GenerateParticlesUsingASNN_func_50NN_MSENN(prob_vars, state, particles, mode
 
     return particles
 
-def GenerateParticlesUsingASNN_func_UsingEnv(prob_vars, state, particles, model_state, model_ASNN):
+def GenerateParticlesUsingASNN_func_UsingEnv(prob_vars, state, particles, model_ASNN):
     
     if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
         og_state_id = prob_vars.env.save_state()

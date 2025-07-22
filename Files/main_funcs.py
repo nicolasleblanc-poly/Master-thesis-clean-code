@@ -42,7 +42,7 @@ def main_50NN_MSENN_MPC(prob_vars, method_name, model_state, replay_buffer_state
     
     episode_rep_rewards = np.zeros((prob_vars.nb_rep_episodes, prob_vars.max_episodes))
 
-    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
         episode_rep_SuccessRate= np.zeros((prob_vars.nb_rep_episodes, prob_vars.max_episodes))
 
     env = prob_vars.env
@@ -74,7 +74,7 @@ def main_50NN_MSENN_MPC(prob_vars, method_name, model_state, replay_buffer_state
 
         else:
 
-            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
                 episode_reward_list, episode_SuccessRate = start_50NN_MSENN_MPC_wASNN(prob_vars, env, seed, model_state, replay_buffer_state, optimizer_state, loss_state, model_ASN, replay_buffer_ASN, optimizer_ASN, do_RS, use_sampling, use_mid, use_ASNN)
                 episode_rep_SuccessRate[rep_ep] = episode_SuccessRate
             else:
@@ -85,7 +85,7 @@ def main_50NN_MSENN_MPC(prob_vars, method_name, model_state, replay_buffer_state
     mean_episode_rep_rewards = np.mean(episode_rep_rewards, axis=0)
     std_episode_rep_rewards = np.std(episode_rep_rewards, axis=0)
 
-    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
         mean_episode_rep_SuccessRate = np.mean(episode_rep_SuccessRate, axis=0)
         std_episode_rep_SuccessRate = np.std(episode_rep_SuccessRate, axis=0)
 
@@ -98,7 +98,7 @@ def main_QRNN_MPC(prob_vars, method_name, model_QRNN, replay_buffer_QRNN, optimi
 
     episode_rep_rewards = np.zeros((prob_vars.nb_rep_episodes, prob_vars.max_episodes))
 
-    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
         episode_rep_SuccessRate= np.zeros((prob_vars.nb_rep_episodes, prob_vars.max_episodes))
 
     env = prob_vars.env
@@ -122,7 +122,7 @@ def main_QRNN_MPC(prob_vars, method_name, model_QRNN, replay_buffer_QRNN, optimi
 
         if not use_ASNN:
 
-            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
                 episode_reward_list, episode_SuccessRate = start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, optimizer_QRNN, model_ASN, replay_buffer_ASN, optimizer_ASN, do_RS, do_QRNN_step_rnd, use_sampling, use_mid, use_ASNN)
             
                 episode_rep_SuccessRate[rep_ep] = episode_SuccessRate
@@ -133,7 +133,7 @@ def main_QRNN_MPC(prob_vars, method_name, model_QRNN, replay_buffer_QRNN, optimi
 
         else:
 
-            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense":
+            if prob_vars.prob == "PandaReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
                 episode_reward_list, episode_SuccessRate = start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, optimizer_QRNN, model_ASN, replay_buffer_ASN, optimizer_ASN, do_RS, use_sampling, use_mid, use_ASNN)
                 episode_rep_SuccessRate[rep_ep] = episode_SuccessRate
             else:

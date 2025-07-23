@@ -267,8 +267,8 @@ class setup_class:
             # max_episodes = 100
             
             # self.max_episodes = 10
-            self.max_episodes = 2#500
-            self.max_steps = 1#200
+            self.max_episodes = 500
+            self.max_steps = 200
             self.std = None
             # change_prob = 0.01
             # change_prob = 0.05

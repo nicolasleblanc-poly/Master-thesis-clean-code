@@ -26,7 +26,7 @@ import os
 # Problem setup
 # prob = "CartPole"
 # prob = "Acrobot"
-# prob = "MountainCar"
+prob = "MountainCar"
 # prob = "LunarLander"
 # prob = "Pendulum"
 # prob = "Pendulum_xyomega"
@@ -35,7 +35,7 @@ import os
 # prob = "PandaReacher"
 # prob = "PandaReacherDense"
 # prob = "PandaPusher"
-prob = "PandaPusherDense"
+# prob = "PandaPusherDense"
 # prob = "MuJoCoReacher"
 # prob = "MuJoCoPusher"
 
@@ -73,7 +73,7 @@ replay_buffer_ASN = ReplayBuffer_ASNN(10000)
 model_ASN = ActionSequenceNN(prob_vars.state_dim, prob_vars.goal_state_dim, prob_vars.action_dim, discrete=prob_vars.discrete, nb_actions=prob_vars.nb_actions)
 optimizer_ASN = optim.Adam(model_ASN.parameters(), lr=1e-3)
 
-if prob == "PandaReacher" or prob == "PandaPusher" or prob == "MuJoCoReacher" or prob == "MuJoCoPusher":
+if prob == "PandaReacher" or prob == "PandaPusher" or prob == "MuJoCoReacher" or prob == "MuJoCoPusher" or prob == "PandaReacherDense" or prob == "PandaPusherDense":
     episode_rep_rewards_MPC_PF_UsingEnv_WithASNN_mid, mean_episode_rep_rewards_MPC_PF_UsingEnv_WithASNN_mid, std_episode_rep_rewards_MPC_PF_UsingEnv_WithASNN_mid, episode_rep_SuccessRate_MPC_PF_UsingEnv_WithASNN_mid, mean_episode_rep_SuccessRate_MPC_PF_UsingEnv_WithASNN_mid, std_episode_rep_SuccessRate_MPC_PF_UsingEnv_WithASNN_mid = main_UsingEnv_MPC(prob_vars, method_name, model_ASN, replay_buffer_ASN, optimizer_ASN, do_RS, do_QRNN_step_rnd, use_ASNN)
 
 else:
@@ -92,7 +92,7 @@ replay_buffer_ASN = None
 model_ASN = None
 optimizer_ASN = None
 
-if prob == "PandaReacher" or prob == "PandaPusher" or prob == "MuJoCoReacher" or prob == "MuJoCoPusher":
+if prob == "PandaReacher" or prob == "PandaPusher" or prob == "MuJoCoReacher" or prob == "MuJoCoPusher" or prob == "PandaReacherDense" or prob == "PandaPusherDense":
     episode_rep_rewards_MPC_PF_QRNN_basic_mid, mean_episode_rep_rewards_MPC_PF_QRNN_basic_mid, std_episode_rep_rewards_MPC_PF_QRNN_basic_mid, episode_rep_SuccessRate_MPC_PF_QRNN_basic_mid, mean_episode_rep_SuccessRate_MPC_PF_QRNN_basic_mid, std_episode_rep_SuccessRate_MPC_PF_QRNN_basic_mid = main_UsingEnv_MPC(prob_vars, method_name, model_ASN, replay_buffer_ASN, optimizer_ASN, do_RS, do_QRNN_step_rnd, use_ASNN)
 
 else:
@@ -113,7 +113,7 @@ replay_buffer_ASN = None
 model_ASN = None
 optimizer_ASN = None
 
-if prob == "PandaReacher" or prob == "PandaPusher" or prob == "MuJoCoReacher" or prob == "MuJoCoPusher":
+if prob == "PandaReacher" or prob == "PandaPusher" or prob == "MuJoCoReacher" or prob == "MuJoCoPusher" or prob == "PandaReacherDense" or prob == "PandaPusherDense":
     episode_rep_rewards_MPC_PF_QRNN_random_mid, mean_episode_rep_rewards_MPC_PF_QRNN_random_mid, std_episode_rep_rewards_MPC_PF_QRNN_random_mid, episode_rep_SuccessRate_MPC_PF_QRNN_random_mid, mean_episode_rep_SuccessRate_MPC_PF_QRNN_random_mid, std_episode_rep_SuccessRate_MPC_PF_QRNN_random_mid = main_UsingEnv_MPC(prob_vars, method_name, model_ASN, replay_buffer_ASN, optimizer_ASN, do_RS, do_QRNN_step_rnd, use_ASNN)
 
 else:
@@ -133,7 +133,7 @@ replay_buffer_ASN = None
 model_ASN = None
 optimizer_ASN = None
 
-if prob == "PandaReacher" or prob == "PandaPusher" or prob == "MuJoCoReacher" or prob == "MuJoCoPusher":
+if prob == "PandaReacher" or prob == "PandaPusher" or prob == "MuJoCoReacher" or prob == "MuJoCoPusher" or prob == "PandaReacherDense" or prob == "PandaPusherDense":
     episode_rep_rewards_RS_mid, mean_episode_rep_rewards_RS_mid, std_episode_rep_rewards_RS_mid, episode_rep_SuccessRate_RS_mid, mean_episode_rep_SuccessRate_RS_mid, std_episode_rep_SuccessRate_RS_mid = main_UsingEnv_MPC(prob_vars, method_name, model_ASN, replay_buffer_ASN, optimizer_ASN, do_RS, do_QRNN_step_rnd, use_ASNN)
 
 else:

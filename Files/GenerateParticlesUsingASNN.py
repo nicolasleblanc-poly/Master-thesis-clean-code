@@ -243,11 +243,13 @@ def GenerateParticlesUsingASNN_func_UsingEnv(prob_vars, state, particles, model_
         
         sim_states = torch.tensor(state, dtype=torch.float32).repeat(len(particles), 1)
         for j in range(prob_vars.horizon-1):
-            actions = torch.tensor(particles[:, j], dtype=torch.float32).reshape(len(particles),1)
+            # actions = torch.tensor(particles[:, j], dtype=torch.float32).reshape(len(particles),1)
             
             sim_states = torch.clip(sim_states, prob_vars.states_low, prob_vars.states_high)
-            actions = torch.clip(actions, prob_vars.action_low, prob_vars.action_high)
-            
+            # actions = torch.clip(actions, prob_vars.action_low, prob_vars.action_high)
+            actions = particles[:, j].reshape(len(particles), prob_vars.action_dim)
+            actions = np.clip(actions, prob_vars.action_low, prob_vars.action_high)
+        
             next_states = []
             for i in range(prob_vars.num_particles):
             
@@ -261,18 +263,34 @@ def GenerateParticlesUsingASNN_func_UsingEnv(prob_vars, state, particles, model_
                     next_states.append(next_state_step['observation'])
                     
                 elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
-                    if j >0:
-                        env_i = copy.deepcopy(prob_vars.env)
-                        env_i.reset(seed=prob_vars.seed)
-                        env_i.state = sim_states[i].numpy()  # Set the initial state of the environment
-                    else: # if h == 0:
-                        env_i = copy.deepcopy(prob_vars.env)
-                        env_i.reset(seed=prob_vars.seed)
-                        if isinstance(sim_states, torch.Tensor):
-                            sim_states.detach().cpu().numpy()
-                        env_i.state = sim_states # .numpy() # Set the initial state of the environment
+                    # if j >0:
+                    #     env_i = copy.deepcopy(prob_vars.env)
+                    #     env_i.reset() # seed=prob_vars.seed
+                    #     env_i.state = sim_states[i].numpy()  # Set the initial state of the environment
+                    # else: # if h == 0:
+                    #     env_i = copy.deepcopy(prob_vars.env)
+                    #     env_i.reset() # seed=prob_vars.seed
+                    #     if isinstance(sim_states, torch.Tensor):
+                    #         sim_states.detach().cpu().numpy()
+                    #     env_i.state = sim_states # .numpy() # Set the initial state of the environment
                         
-                    next_state_step, reward, terminated, truncated, info = env_i.step(actions[i].numpy())
+                    # next_state_step, reward, terminated, truncated, info = env_i.step(actions[i]) # .numpy()
+                    
+                    # next_state = env_i.state
+                    # next_states.append(next_state)
+                    
+                    env_i = copy.deepcopy(prob_vars.env)
+                    env_i.reset() # seed=prob_vars.seed
+                    if isinstance(sim_states, torch.Tensor):
+                        sim_states.detach().cpu().numpy()
+                    env_i.state = sim_states[i] # .numpy() # Set the initial state of the environment
+                    
+                    # print("env_i.state ", env_i.state, "\n")
+                    
+                    if prob_vars.discrete == True:
+                        next_state_step, reward, terminated, truncated, info = env_i.step(int(actions[i]))
+                    else:
+                        next_state_step, reward, terminated, truncated, info = env_i.step(actions[i]) # .numpy() 
                     
                     next_state = env_i.state
                     next_states.append(next_state)
@@ -324,11 +342,11 @@ def GenerateParticlesUsingASNN_func_UsingEnv(prob_vars, state, particles, model_
                     elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
                         if j >0:
                             env_i = copy.deepcopy(prob_vars.env)
-                            env_i.reset(seed=prob_vars.seed)
+                            env_i.reset() # seed=prob_vars.seed
                             env_i.state = sim_states[i].numpy()  # Set the initial state of the environment
                         else: # if h == 0:
                             env_i = copy.deepcopy(prob_vars.env)
-                            env_i.reset(seed=prob_vars.seed)
+                            env_i.reset() # seed=prob_vars.seed
                             if isinstance(sim_states, torch.Tensor):
                                 sim_states.detach().cpu().numpy()
                             env_i.state = sim_states # .numpy() # Set the initial state of the environment
@@ -378,11 +396,11 @@ def GenerateParticlesUsingASNN_func_UsingEnv(prob_vars, state, particles, model_
                     elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
                         if j >0:
                             env_i = copy.deepcopy(prob_vars.env)
-                            env_i.reset(seed=prob_vars.seed)
+                            env_i.reset() # seed=prob_vars.seed
                             env_i.state = sim_states[i].numpy()  # Set the initial state of the environment
                         else: # if h == 0:
                             env_i = copy.deepcopy(prob_vars.env)
-                            env_i.reset(seed=prob_vars.seed)
+                            env_i.reset() # seed=prob_vars.seed
                             if isinstance(sim_states, torch.Tensor):
                                 sim_states.detach().cpu().numpy()
                             env_i.state = sim_states # .numpy() # Set the initial state of the environment

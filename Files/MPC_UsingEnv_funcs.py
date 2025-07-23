@@ -113,7 +113,7 @@ def start_UsingEnv_MPC_wASNN(prob_vars, env, seed, model_ASNN, replay_buffer_ASN
 
 
 
-def start_UsingEnvrand_RS(prob_vars, env, seed, model_ASNN, replay_buffer_ASNN, optimizer_ASNN, do_RS, do_QRNN_step_rnd, use_sampling, use_mid, use_ASNN):
+def start_UsingEnvrand_RS(prob_vars, env, seed, model_ASNN, replay_buffer_ASNN, optimizer_ASNN, do_RS, do_QRNN_step_rnd, use_ASNN):
 
     episode_reward_list = []
     episode_success_rate = [] # For Panda Gym envs
@@ -154,7 +154,7 @@ def start_UsingEnvrand_RS(prob_vars, env, seed, model_ASNN, replay_buffer_ASNN, 
 
             particles = np.clip(particles, prob_vars.action_low, prob_vars.action_high)
 
-            best_particle, action, best_cost, particles = choose_action_func_UsingEnv(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASNN, model_ASNN, episode=episode, step=step, goal_state=prob_vars.goal_state)
+            best_particle, action, best_cost, particles = choose_action_func_UsingEnv(prob_vars, state, particles, do_RS, use_ASNN, model_ASNN, episode=episode, step=step, goal_state=prob_vars.goal_state)
             
             actions_list.append(action)
             

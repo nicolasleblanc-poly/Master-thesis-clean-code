@@ -37,10 +37,13 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
         else:
             particles_t_array = particles[:, h]
         
-        actions = torch.tensor([particles_t_array], dtype=torch.float32).reshape(len(particles),action_dim)
+        actions = particles_t_array.reshape(len(particles),action_dim)
+        actions = np.clip(actions, prob_vars.action_low, prob_vars.action_high)
+        # actions = torch.tensor([particles_t_array], dtype=torch.float32).reshape(len(particles),action_dim)
+        
         
         sim_states = torch.clip(sim_states, prob_vars.states_low, prob_vars.states_high)
-        actions = actions.clip(prob_vars.action_low, prob_vars.action_high)
+        # actions = actions.clip(prob_vars.action_low, prob_vars.action_high)
         
         next_states = []
         for i in range(prob_vars.num_particles):
@@ -49,24 +52,38 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
                 prob_vars.env.restore_state(state_ids[i])
                 prob_vars.env.remove_state(state_ids[i])
                 
-                next_state_step, reward, terminated, truncated, info = prob_vars.env.step(actions[i].numpy())
+                next_state_step, reward, terminated, truncated, info = prob_vars.env.step(actions[i]) # .numpy()
                 
                 state_ids[i] = prob_vars.env.save_state()
                 next_states.append(next_state_step['observation'])
                 
             elif prob_vars.prob == "MountainCar" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "CartPole" or prob_vars.prob == "CartPoleContinuous":
-                if h >0:
-                    env_i = copy.deepcopy(prob_vars.env)
-                    env_i.reset(seed=prob_vars.seed)
-                    env_i.state = sim_states[i].numpy()  # Set the initial state of the environment
-                else: # if h == 0:
-                    env_i = copy.deepcopy(prob_vars.env)
-                    env_i.reset(seed=prob_vars.seed)
-                    if isinstance(sim_states, torch.Tensor):
-                        sim_states.detach().cpu().numpy()
-                    env_i.state = sim_states # .numpy() # Set the initial state of the environment
-                    
-                next_state_step, reward, terminated, truncated, info = env_i.step(actions[i].numpy())
+                
+                # print("sim_states ", sim_states, "\n")
+                
+                # if h >0:
+                #     env_i = copy.deepcopy(prob_vars.env)
+                #     env_i.reset() # seed=prob_vars.seed
+                #     env_i.state = sim_states[i].numpy()  # Set the initial state of the environment
+                # else: # if h == 0:
+                #     env_i = copy.deepcopy(prob_vars.env)
+                #     env_i.reset() # seed=prob_vars.seed
+                #     if isinstance(sim_states, torch.Tensor):
+                #         sim_states.detach().cpu().numpy()
+                #     env_i.state = sim_states # .numpy() # Set the initial state of the environment
+                
+                env_i = copy.deepcopy(prob_vars.env)
+                env_i.reset() # seed=prob_vars.seed
+                if isinstance(sim_states, torch.Tensor):
+                    sim_states.detach().cpu().numpy()
+                env_i.state = sim_states[i] # .numpy() # Set the initial state of the environment
+                
+                # print("env_i.state ", env_i.state, "\n")
+                
+                if prob_vars.discrete == True:
+                    next_state_step, reward, terminated, truncated, info = env_i.step(int(actions[i]))
+                else:
+                    next_state_step, reward, terminated, truncated, info = env_i.step(actions[i]) # .numpy() 
                 
                 next_state = env_i.state
                 next_states.append(next_state)
@@ -97,7 +114,9 @@ def mpc_UsingEnv_func(prob_vars, sim_states, particles, use_ASGNN, model_ASN):
         else:
             costs += prob_vars.compute_cost(prob_vars.prob, next_states, h, horizon, actions) # h, horizon,
 
-    prob_vars.env.restore_state(og_state_id)
+    if prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
+
+        prob_vars.env.restore_state(og_state_id)
 
     return costs
 

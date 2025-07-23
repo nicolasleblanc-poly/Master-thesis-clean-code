@@ -267,8 +267,8 @@ class setup_class:
             # max_episodes = 100
             
             # self.max_episodes = 10
-            self.max_episodes = 500
-            self.max_steps = 200
+            self.max_episodes = 2#500
+            self.max_steps = 1#200
             self.std = None
             # change_prob = 0.01
             # change_prob = 0.05
@@ -933,8 +933,8 @@ class setup_class:
         elif prob == "PandaPusher": # ToDo
             self.discrete = False
             self.horizon = 15
-            self.max_episodes = 2#400
-            self.max_steps = 1#50
+            self.max_episodes = 400
+            self.max_steps = 50
 
             # For test
             # self.max_episodes = 3
@@ -993,8 +993,8 @@ class setup_class:
         elif prob == "PandaPusherDense": # ToDo
             self.discrete = False
             self.horizon = 15
-            self.max_episodes = 2#400
-            self.max_steps = 1#50
+            self.max_episodes = 400
+            self.max_steps = 50
 
             # For test
             # self.max_episodes = 3

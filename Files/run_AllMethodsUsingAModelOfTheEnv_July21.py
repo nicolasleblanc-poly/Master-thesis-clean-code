@@ -494,7 +494,7 @@ def save_data_CEM(prob, method_name, episodic_rep_returns, mean_episodic_returns
     # }
     
     origin_folder = os.path.dirname(os.path.abspath(__file__))
-    save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_July21.npz")
+    save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_July21_CEM.npz")
 
     np.savez(
     save_path,

@@ -2,7 +2,7 @@
 #SBATCH --mem=32G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
-#SBATCH --time=96:0:0    
+#SBATCH --time=14-00:00:00 
 #SBATCH --mail-user=<nicolas-3.leblanc@polymtl.ca>
 #SBATCH --mail-type=ALL
 
@@ -13,7 +13,7 @@ module load mujoco
 module load python/3.11.9 scipy-stack
 source ~/myenv/bin/activate
 
-python run_MPU_MSE_AS_ba_CEM.py # my_script.py
+python run_AllMethodsUsingAModelOfTheEnv_July21.py # my_script.py
 # echo "all done"
 
 # #!/bin/bash

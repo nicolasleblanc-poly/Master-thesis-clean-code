@@ -2,7 +2,7 @@ from sb3_funcs import run
 
 env_seeds = [0, 8, 15]
 
-steps_per_episode = 50
+steps_per_episode = 100
 max_episodes = 400
 prob = "MuJoCoPusher"
 # A2C

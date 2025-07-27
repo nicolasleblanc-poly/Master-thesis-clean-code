@@ -30,8 +30,8 @@ if __name__ == "__main__":
     TRAIN_EPOCH = 150
     BOOT_STRAP_ITER = 100
 
-    nx = 10
-    nu = 2
+    nx = 23
+    nu = 7
     # network output is state residual
     network = torch.nn.Sequential(
         torch.nn.Linear(nx + nu, H_UNITS),

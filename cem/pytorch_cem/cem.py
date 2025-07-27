@@ -188,7 +188,7 @@ def run_cem(cem, seed, env, retrain_dynamics, retrain_after_iter=50, iter=1000, 
     dataset = torch.zeros((retrain_after_iter, cem.nx + cem.nu), dtype=cem.dtype, device=cem.d)
     total_reward = 0
     state, info = env.reset(seed=seed)
-    if prob == "PandaReach" or prob == "PandaReachDense":
+    if prob == "PandaReach" or prob == "PandaReachDense" or prob == "PandaPush" or prob == "PandaPushDense":
         # # global goal_state
         # goal_state = state['desired_goal']
         state  = state['observation']
@@ -205,7 +205,7 @@ def run_cem(cem, seed, env, retrain_dynamics, retrain_after_iter=50, iter=1000, 
         
         if prob == "Pendulum" or prob == "MountainCarContinuous":
             next_state = env.unwrapped.state.copy()
-        elif prob == "PandaReach" or prob == "PandaReachDense":
+        elif prob == "PandaReach" or prob == "PandaReachDense" or prob == "PandaPush" or prob == "PandaPushDense":
             next_state = next_state['observation']
         
         total_reward += r

@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     global goal_state 
 
-    nx = 6
+    nx = 18
     nu = 3
     # network output is state residual
     network = torch.nn.Sequential(

@@ -206,7 +206,7 @@ def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, ite
     dataset = torch.zeros((retrain_after_iter, ctrl.nx + ctrl.nu), device=ctrl.device)
     total_reward = 0
     state, info = env.reset(seed=seed)
-    if prob == "PandaReach" or prob == "PandaReachDense":
+    if prob == "PandaReach" or prob == "PandaReachDense" or prob == "PandaPush" or prob == "PandaPushDense":
         # # global goal_state
         # goal_state = state['desired_goal']
         state  = state['observation']
@@ -224,7 +224,7 @@ def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, ite
         # action
         
         # action = action
-        if prob != "PandaReach" and prob != "PandaReachDense":
+        if prob != "PandaReach" and prob != "PandaReachDense" or prob != "PandaPush" and prob != "PandaPushDense":
             # action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device='cuda'), torch.tensor(env.action_space.high, dtype=torch.float32, device='cuda'))
             action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device='cpu'), torch.tensor(env.action_space.high, dtype=torch.float32, device='cpu'))
         
@@ -232,7 +232,7 @@ def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, ite
 
         if prob == "Pendulum" or prob == "MountainCarContinuous":
             next_state = env.unwrapped.state.copy()
-        elif prob == "PandaReach" or prob == "PandaReachDense":
+        elif prob == "PandaReach" or prob == "PandaReachDense" or prob == "PandaPush" or prob == "PandaPushDense":
             next_state  = next_state['observation']
 
         total_reward += r

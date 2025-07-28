@@ -116,7 +116,6 @@ def mountaincar_continuous(act: torch.Tensor, next_obs: torch.Tensor) -> torch.T
     done = (pos >= 0.45)  # Episode ends when car reaches the goal
     return done[:, None]
 
-
 def reacher(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     # next_obs: includes fingertip and target positions at the end
     assert len(next_obs.shape) == 2
@@ -124,7 +123,6 @@ def reacher(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     # This is a continuous task with no early termination in standard Reacher
     done = torch.zeros(len(next_obs), dtype=torch.bool, device=next_obs.device)
     return done[:, None]
-
 
 def pendulum(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     # next_obs: [cos(theta), sin(theta), theta_dot]
@@ -134,17 +132,48 @@ def pendulum(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     done = torch.zeros(len(next_obs), dtype=torch.bool, device=next_obs.device)
     return done[:, None]
 
-
-def panda_push(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+def panda_push_seed0(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     # next_obs: [ee_x, ee_y, ee_z, obj_x, obj_y, obj_z]
     assert len(next_obs.shape) == 2
 
-    goal = torch.tensor([0.6, 0.0, 0.0], device=next_obs.device)
-    obj_pos = next_obs[:, 3:6]
+    goal = torch.tensor([0.04108851, -0.06906398,  0.02], device=next_obs.device)
+    obj_pos = next_obs[:, 6:9]
 
     dist = torch.norm(obj_pos - goal, dim=1)
     done = (dist < 0.05)  # consider successful push if within 5cm
 
+    return done[:, None]
+
+def panda_push_seed8(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    # next_obs: [ee_x, ee_y, ee_z, obj_x, obj_y, obj_z]
+    assert len(next_obs.shape) == 2
+
+    goal = torch.tensor([-0.05190832,  0.14618306,  0.02], device=next_obs.device)
+    obj_pos = next_obs[:, 6:9]
+
+    dist = torch.norm(obj_pos - goal, dim=1)
+    done = (dist < 0.05)  # consider successful push if within 5cm
+
+    return done[:, None]
+
+def panda_push_seed15(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    # next_obs: [ee_x, ee_y, ee_z, obj_x, obj_y, obj_z]
+    assert len(next_obs.shape) == 2
+
+    goal = torch.tensor([0.05782301, 0.09474514, 0.02], device=next_obs.device)
+    obj_pos = next_obs[:, 6:9]
+
+    dist = torch.norm(obj_pos - goal, dim=1)
+    done = (dist < 0.05)  # consider successful push if within 5cm
+
+    return done[:, None]
+
+def pusher(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    # next_obs: includes fingertip and target positions at the end
+    assert len(next_obs.shape) == 2
+
+    # This is a continuous task with no early termination in standard Reacher
+    done = torch.zeros(len(next_obs), dtype=torch.bool, device=next_obs.device)
     return done[:, None]
 
 def panda_reach_seed0(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:

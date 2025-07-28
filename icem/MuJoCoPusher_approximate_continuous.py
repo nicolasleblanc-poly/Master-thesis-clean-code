@@ -51,7 +51,7 @@ if __name__ == "__main__":
         return next_state
 
     def running_cost(state, action):
-        cost = torch.norm(state[:, 14:17]-state[:, 17:20], dim=1)+torch.norm(state[:, 17:20]-state[:, 20:], dim=1)
+        cost = torch.norm(state[:, 14:17]-state[:, 17:20], dim=1)+torch.norm(state[:, 17:20]-state[:, 20:], dim=1)+0.1*(torch.norm(actions, dim=1))**2
 
         return cost
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         # Get the folder where this script is located
         origin_folder = os.path.dirname(os.path.abspath(__file__))
         # Construct full path to save
-        save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_July26.npz")
+        save_path = os.path.join(origin_folder, f"{prob}_{method_name}_results_July28.npz")
 
         np.savez(
         save_path,

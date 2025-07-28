@@ -119,6 +119,44 @@ def panda_reach_seed15(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tenso
     
     return -cost.view(-1, 1)
 
+def panda_push_seed0(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    # next_obs: [ee_x, ee_y, ee_z, obj_x, obj_y, obj_z]
+    assert len(next_obs.shape) == 2
+
+    goal_state = torch.tensor([0.04108851, -0.06906398,  0.02], device=next_obs.device)
+
+    cost = torch.norm(next_obs[:, 6:9] - goal_state, dim=1)
+
+    return -cost.view(-1, 1)
+
+def panda_push_seed8(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    # next_obs: [ee_x, ee_y, ee_z, obj_x, obj_y, obj_z]
+    assert len(next_obs.shape) == 2
+
+    goal_state = torch.tensor([-0.05190832,  0.14618306,  0.02], device=next_obs.device)
+    
+    cost = torch.norm(next_obs[:, 6:9] - goal_state, dim=1)
+
+    return -cost.view(-1, 1)
+
+def panda_push_seed15(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    # next_obs: [ee_x, ee_y, ee_z, obj_x, obj_y, obj_z]
+    assert len(next_obs.shape) == 2
+
+    goal_state = torch.tensor([0.05782301, 0.09474514, 0.02], device=next_obs.device)
+    
+    cost = torch.norm(next_obs[:, 6:9] - goal_state, dim=1)
+
+    return -cost.view(-1, 1)
+
+def pusher(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    # next_obs: includes fingertip and target positions at the end
+    assert len(next_obs.shape) == 2
+
+    cost = torch.norm(next_obs[:, 14:17]-next_obs[:, 17:20], dim=1)+torch.norm(next_obs[:, 17:20]-next_obs[:, 20:], dim=1)
+    
+    return -cost.view(-1, 1)
+
 ############### Already implementated termination functions ################
 def cartpole(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     assert len(next_obs.shape) == len(act.shape) == 2

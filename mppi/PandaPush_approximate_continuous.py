@@ -58,9 +58,9 @@ if __name__ == "__main__":
 
     def running_cost(state, action):
         # Need the goal state based on the seed
-        # goal_state = np.array([0.04108851, -0.06906398,  0.02]) # seed = 0
+        goal_state = np.array([0.04108851, -0.06906398,  0.02]) # seed = 0
         # goal_state = np.array([-0.05190832,  0.14618306,  0.02]) # seed = 8
-        goal_state = np.array([0.05782301, 0.09474514, 0.02]) # seed = 15
+        # goal_state = np.array([0.05782301, 0.09474514, 0.02]) # seed = 15
         goal_state = torch.tensor(goal_state, dtype=torch.float32, device=state.device).reshape(1, 3)
         cost = torch.norm(state[:, :3] - goal_state, dim=1)
 
@@ -130,9 +130,9 @@ if __name__ == "__main__":
         initial_state_dict = network.state_dict()
 
     # env_seeds = [0, 8, 15]
-    # seed = 0
+    seed = 0
     # seed = 8
-    seed = 15
+    # seed = 15
     print("seed ", seed, "\n")
     episodic_return_seeds = []
     max_episodes = 400

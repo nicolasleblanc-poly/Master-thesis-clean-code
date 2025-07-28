@@ -415,6 +415,21 @@ sbatch --job-name=MCPFUErndRS run-MC-UsingEnv-rnd-RS-PF-July23.sh
 sbatch --job-name=MCCEMUEASba run-MC-UsingEnv-ASNN-basic-CEM-July23.sh
 sbatch --job-name=MCCEMUErndRS run-MC-UsingEnv-rnd-CEM-July23.sh
 
+-------------------------------------
+
+sbatch --job-name=MCPFUEAS run-MC-UsingEnv-ASNN-PF-July25.sh
+sbatch --job-name=MCPFUEba run-MC-UsingEnv-basic-PF-July25.sh
+
+sbatch --job-name=MCPFUErnd run-MC-UsingEnv-rnd-PF-July25.sh
+sbatch --job-name=MCPFUERS run-MC-UsingEnv-RS-PF-July25.sh
+
+sbatch --job-name=MCCEMUEAS run-MC-UsingEnv-ASNN-CEM-July25.sh
+sbatch --job-name=MCCEMUEba run-MC-UsingEnv-basic-CEM-July25.sh
+
+sbatch --job-name=MCCEMUErnd run-MC-UsingEnv-rnd-CEM-July25.sh
+
+-------------------------------------
+
 sbatch --job-name=MPU_Q_AS_ba_PF run-MPU-Q-AS-ba.sh
 sbatch --job-name=MPU_Q_rnd_RS_PF run-MPU-Q-rnd-RS.sh
 sbatch --job-name=MPU_Q_AS_ba_CEM run-MPU-Q-AS-ba-CEM.sh

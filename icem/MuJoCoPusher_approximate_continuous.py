@@ -50,8 +50,14 @@ if __name__ == "__main__":
 
         return next_state
 
-    def running_cost(state, action):
-        cost = torch.norm(state[:, 14:17]-state[:, 17:20], dim=1)+torch.norm(state[:, 17:20]-state[:, 20:], dim=1)+0.1*(torch.norm(action, dim=1))**2
+    def running_cost(states, actions):
+        state1 = states[:, :, 14:17]
+        state2 = states[:, :, 17:20]
+        state3 = states[:, :, 20:]
+        cost_term1 = torch.norm(state1 - state2, dim=-1)+ torch.norm(state2 - state3, dim=-1)
+        cost_term2 = 0.1 * torch.sum(actions.pow(2), dim=-1)                                                                                
+        
+        cost = cost_term1 + cost_term2
 
         return cost
 

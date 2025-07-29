@@ -1137,8 +1137,8 @@ class setup_class:
             self.states_high = torch.tensor([100]*23)
             
             # Hyperparameters    
-            self.actions_lows = self.env.action_space.low#[:3]
-            self.actions_highs = self.env.action_space.high#[:3]
+            self.actions_lows = self.env.action_space.low #[:3]
+            self.actions_highs = self.env.action_space.high #[:3]
             # self.states_low = self.env.observation_space['observation'].low#[:3]
             # self.states_high = self.env.observation_space['observation'].high#[:3]
             # self.state_dim = len(self.states_low)

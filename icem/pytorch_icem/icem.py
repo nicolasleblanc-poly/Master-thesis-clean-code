@@ -202,7 +202,7 @@ class iCEM:
             self.kept_elites[:, -1] = self.sigma * torch.randn(len(self.kept_elites), self.nu, device=self.device)
 
 
-def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, iter=1000, render=True, prob = None):
+def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, iter=1000, render=True, prob = None, nb_repeat_action=1):
     dataset = torch.zeros((retrain_after_iter, ctrl.nx + ctrl.nu), device=ctrl.device)
     total_reward = 0
     state, info = env.reset(seed=seed)
@@ -211,7 +211,9 @@ def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, ite
         # goal_state = state['desired_goal']
         state  = state['observation']
 
-    for i in range(iter):
+    # for i in range(iter):
+    step = 0
+    while step < iter:
         # state = env.unwrapped.state.copy()
         if prob == "Pendulum" or prob == "MountainCarContinuous":
             state = env.unwrapped.state.copy()
@@ -226,20 +228,35 @@ def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, ite
         # action = action
         if prob != "PandaReach" and prob != "PandaReachDense" or prob != "PandaPush" and prob != "PandaPushDense":
             # action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device='cuda'), torch.tensor(env.action_space.high, dtype=torch.float32, device='cuda'))
-            
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device=device), torch.tensor(env.action_space.high, dtype=torch.float32, device=device))
-            
-            # action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device='cpu'), torch.tensor(env.action_space.high, dtype=torch.float32, device='cpu'))
+            action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device='cpu'), torch.tensor(env.action_space.high, dtype=torch.float32, device='cpu'))
         
-        next_state, r, terminated, truncated, info = env.step(action.cpu().numpy())
+        if prob == "MountainCar" or prob == "MountainCarContinuous":
+            # Repeat the same action for nb_repeat_action environment steps
+            for _ in range(nb_repeat_action):
+                next_state, r, terminated, truncated, info = env.step(action.cpu().numpy())
+                total_reward += r
+                step += 1
+
+                done = truncated or terminated
+                if done:
+                    nb_episode_success += 1
+                    break
+                
+        else:
+            # Apply the first action from the optimized sequence
+            next_state, r, terminated, truncated, info = env.step(action.cpu().numpy())
+            total_reward += r
+            step += 1
+        
+        # next_state, r, terminated, truncated, info = env.step(action.cpu().numpy())
 
         if prob == "Pendulum" or prob == "MountainCarContinuous":
             next_state = env.unwrapped.state.copy()
         elif prob == "PandaReach" or prob == "PandaReachDense" or prob == "PandaPush" or prob == "PandaPushDense":
             next_state  = next_state['observation']
 
-        total_reward += r
+        # total_reward += r
+        
         # logger.debug("action taken: %.4f cost received: %.4f time taken: %.5fs", action, -r, elapsed)
         if render:
             env.render()
@@ -250,8 +267,10 @@ def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, ite
         if done:
             break
 
-        di = i % retrain_after_iter
-        if di == 0 and i > 0:
+        # di = i % retrain_after_iter
+        # if di == 0 and i > 0:
+        di = step % retrain_after_iter
+        if di == 0 and step > 0:
             retrain_dynamics(dataset)
             # don't have to clear dataset since it'll be overridden, but useful for debugging
             dataset.zero_()
@@ -263,3 +282,65 @@ def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, ite
         # print("info ", info, "\n")
         state = next_state
     return total_reward, dataset
+
+# def run_icem(ctrl: iCEM, seed, env, retrain_dynamics, retrain_after_iter=50, iter=1000, render=True, prob = None):
+#     dataset = torch.zeros((retrain_after_iter, ctrl.nx + ctrl.nu), device=ctrl.device)
+#     total_reward = 0
+#     state, info = env.reset(seed=seed)
+#     if prob == "PandaReach" or prob == "PandaReachDense" or prob == "PandaPush" or prob == "PandaPushDense":
+#         # # global goal_state
+#         # goal_state = state['desired_goal']
+#         state  = state['observation']
+
+#     for i in range(iter):
+#         # state = env.unwrapped.state.copy()
+#         if prob == "Pendulum" or prob == "MountainCarContinuous":
+#             state = env.unwrapped.state.copy()
+#         # command_start = time.perf_counter()
+#         # print("state: ", state, "\n")
+#         action = ctrl.command(state)
+#         # elapsed = time.perf_counter() - command_start
+#         # res = env.step(action.cpu().numpy())
+#         # s, r = res[0], res[1]
+#         # action
+        
+#         # action = action
+#         if prob != "PandaReach" and prob != "PandaReachDense" or prob != "PandaPush" and prob != "PandaPushDense":
+#             # action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device='cuda'), torch.tensor(env.action_space.high, dtype=torch.float32, device='cuda'))
+            
+#             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#             action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device=device), torch.tensor(env.action_space.high, dtype=torch.float32, device=device))
+            
+#             # action = torch.clip(action, torch.tensor(env.action_space.low, dtype=torch.float32, device='cpu'), torch.tensor(env.action_space.high, dtype=torch.float32, device='cpu'))
+        
+#         next_state, r, terminated, truncated, info = env.step(action.cpu().numpy())
+
+#         if prob == "Pendulum" or prob == "MountainCarContinuous":
+#             next_state = env.unwrapped.state.copy()
+#         elif prob == "PandaReach" or prob == "PandaReachDense" or prob == "PandaPush" or prob == "PandaPushDense":
+#             next_state  = next_state['observation']
+
+#         total_reward += r
+#         # logger.debug("action taken: %.4f cost received: %.4f time taken: %.5fs", action, -r, elapsed)
+#         if render:
+#             env.render()
+
+#         done = terminated or truncated
+#         # print("truncated ", truncated, "\n")
+#         # print("terminated ", terminated, "\n")
+#         if done:
+#             break
+
+#         di = i % retrain_after_iter
+#         if di == 0 and i > 0:
+#             retrain_dynamics(dataset)
+#             # don't have to clear dataset since it'll be overridden, but useful for debugging
+#             dataset.zero_()
+#         dataset[di, :ctrl.nx] = torch.tensor(state, device=ctrl.device)
+#         dataset[di, ctrl.nx:] = action
+        
+#         # print("state ", state, "action ", action, "next_state ", next_state, "\n")
+#         # print("r ", r, "total_reward ", total_reward, "i ", i, "\n")
+#         # print("info ", info, "\n")
+#         state = next_state
+#     return total_reward, dataset

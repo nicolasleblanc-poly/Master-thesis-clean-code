@@ -181,6 +181,8 @@ if __name__ == "__main__":
     max_steps = 1000
     # for seed in env_seeds:
     
+    nb_repeat_action = 4
+    
     episodic_return = []
     # Reset network to initial pretrained weights
     network.load_state_dict(initial_state_dict)
@@ -192,7 +194,7 @@ if __name__ == "__main__":
     for episode in range(max_episodes):
         env.reset(seed=seed)
         
-        total_reward, data = mppi.run_mppi(mppi_gym, seed, env, train, iter=max_steps, render=False, prob=prob) # mppi.run_mppi(mppi_gym, seed, env, train, iter=max_episodes, render=False)
+        total_reward, data = mppi.run_mppi(mppi_gym, seed, env, train, iter=max_steps, render=False, prob=prob, nb_repeat_action=nb_repeat_action) # mppi.run_mppi(mppi_gym, seed, env, train, iter=max_episodes, render=False)
         episodic_return.append(total_reward)
     
     episodic_return = np.array(episodic_return)

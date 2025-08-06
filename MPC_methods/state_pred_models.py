@@ -32,6 +32,40 @@ class NextStateQuantileNetwork(nn.Module):
         x = self.layer3(x)
         return x.view(-1, self.num_quantiles, state.size(-1))
 
+class NextStateQuantileNetworkWithBatchNorm(nn.Module):
+    def __init__(self, state_dim, action_dim, num_quantiles):
+        super(NextStateQuantileNetwork, self).__init__()
+        self.num_quantiles = num_quantiles
+
+        # Input layer (state + action concatenation)
+        self.layer1 = nn.Linear(state_dim + action_dim, 256)
+        self.bn1 = nn.BatchNorm1d(256)
+        self.layer2 = nn.Linear(256, 256)
+        self.bn2 = nn.BatchNorm1d(256)
+        self.layer3 = nn.Linear(256, state_dim * num_quantiles)  # Output quantiles for each state dimension
+        # self.layer3 = torch.tanh(256, state_dim * num_quantiles)  # Output quantiles for each state dimension
+
+    def forward(self, state, action):
+        # Concatenate state and action
+        # x = torch.cat((action, state))
+        # print("action ", action, "\n")
+        
+        # print("state ", state, "\n")
+        # print("state.shape ", state.shape, "\n")
+        # print("action ", action, "\n")
+        # print("action.shape ", action.shape, "\n")
+        
+        if len(state.shape) == 1:
+            x = torch.cat((action, state)).unsqueeze(0)
+        else:
+            x = torch.cat((action, state), dim=1) # .unsqueeze(1)
+            
+        # print("x ", x, "\n")
+        # print("x.shape ", x.shape, "\n")
+        x = torch.relu(self.bn1(self.layer1(x)))
+        x = torch.relu(self.bn2(self.layer2(x)))
+        x = self.layer3(x)
+        return x.view(-1, self.num_quantiles, state.size(-1))
 
 def quantile_loss(predicted, target, quantiles, batch_size=32):
     """

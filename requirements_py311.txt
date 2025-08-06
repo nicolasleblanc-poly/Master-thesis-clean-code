@@ -34,7 +34,7 @@ fsspec==2025.5.0
 future==1.0.0
 glfw==2.9.0
 grpcio==1.71.0
-gym==0.17.2
+% gym==0.17.2
 gymnasium==1.1.1
 h11==0.16.0
 httpcore==1.0.9

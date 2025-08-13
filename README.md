@@ -26,14 +26,20 @@ See my report here for more information on the résumé presented below: link
 - Shift the action sequences to remove the action taken and replace the vacant action with one sampled from the ASNN
 
 ## Our 21 MPC methods
-### QRNN/50NN/MSENN-ASNN-PF/CEM <img width="843" height="97" alt="image" src="https://github.com/user-attachments/assets/cf7c2650-394f-46b7-b80e-40e73e3dd31a" />
+For all the algorithms below, you can pick a model among QRNN, 50NN, and MSENN, as well as PF or CEM where they are mentionned.
 
+### QRNN/50NN/MSENN-ASNN-PF/CEM
+- Use the ASNN to generate action sequences at the start of an episode
+- Shift the action sequences and replace the vacant action by one sampled from the ASNN
 
-###
+### QRNN/50NN/MSENN-basic-PF/CEM
+- Same idea as the ASNN algorithms, but a uniform distribution is sampled instead of the ASNN.
 
-###
+### QRNN/50NN/MSENN-RS
+- Generate new action sequences at each step in the environment by sampling a uniform distribution.
 
-###
+### QRNN/50NN/MSENN-rnd-PF/CEM
+- Same idea as RS, but we optimize the action sequences in MPC for the same amount of iterations as the ASNN and basic methods.
 
 ## Let's go over the different elements of this repository:
 - I used python 3.11 for the code in this repository. USe pip install -r pathto/requirements_py311.txt (replace the pathto with your path to the file)

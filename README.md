@@ -1,1 +1,2 @@
-# Clean-Master-s-code
+# Master thesis clean code
+

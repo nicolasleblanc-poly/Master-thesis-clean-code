@@ -4,7 +4,7 @@ This repository contains our 21 MPC methods, as well as MFRL (A2C, PPO, SAC, DDP
 
 Our 21 MPC methods consist in using:
 - Generating initial action sequences
-  
+## e23e
 
 Let's go over the different elements of this repository:
 - I used python 3.11 for the code in this repository. USe pip install -r pathto/requirements_py311.txt (replace the pathto with your path to the file)

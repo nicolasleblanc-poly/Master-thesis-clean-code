@@ -1,6 +1,6 @@
 # Master thesis clean code
 
-This repository contains our 21 MPC methods, as well as MFRL (A2C, PPO, SAC, DDPG, TD3, TQC, QR-DQN), and trajectory optimization methods (CEM, iCEM, MPPI) from the literature. Other algorithms not in this repository are GP-MPC, PETS-CEM, DQN, and IV-DQN.
+This repository contains our 21 MPC methods, as well as MFRL (A2C, PPO, SAC, DDPG, TD3, TQC, QR-DQN), and trajectory optimization methods (CEM, iCEM, MPPI) from the literature. Other algorithms not in this repository are but used for comparison are GP-MPC, PETS-CEM, DQN, and IV-DQN.
 
 See the following repositories for the code and requirements.txt files to run:
 - The GP-MPC folder contains the GP-MPC code. GP-MPC uses python 3.10. See this repository of mine for the code and the requirements.txt file to run it: https://github.com/nicolasleblanc-poly/GP-MPC-from-paper-for-my-Master-thesis/tree/main

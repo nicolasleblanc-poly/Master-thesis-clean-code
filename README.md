@@ -3,13 +3,30 @@
 This repository contains our 21 MPC methods, as well as MFRL (A2C, PPO, SAC, DDPG, TD3, TQC), and trajectory optimization methods (CEM, iCEM, MPPI) from the literature.
 
 ## Our 21 MPC methods consist in using:
-### Generating initial action sequences: Sampling a uniform distribution or an action sequence neural network (ASNN)
+### Generating initial action sequences: 
+- Sampling a uniform distribution
+
+- Sampling an action sequence neural network (ASNN)
 
 ### Model of the environment: quantile regression neural network (QRNN), 50NN, and MSENN
+- Quantile regression neural network (QRNN)
 
-### Ways to optimize
+- 50NN
+
+- MSENN
+
+
+### Ways to optimize action sequences in MPC
+-
+
+-
 
 ### Methods to change/generate action sequences before the next step in the environment: 
+-
+
+-
+
+-
 
 ## Let's go over the different elements of this repository:
 - I used python 3.11 for the code in this repository. USe pip install -r pathto/requirements_py311.txt (replace the pathto with your path to the file)

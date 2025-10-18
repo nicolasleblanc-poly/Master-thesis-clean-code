@@ -4,7 +4,7 @@ import gymnasium as gym
 # import panda_gym
 
 class setup_class:
-    def __init__(self, prob, prob_name, delta_t, sim_steps, state_cost_weight, terminal_cost_weight, do_RS, use_sampling, use_mid, use_QRNN, use_50NN, use_MSENN, model_state, optimizer_state, loss_state, replay_buffer_state, use_ASNN, model_ASNN, loss_ASNN, replay_buffer_ASNN, use_CEM=False, num_quantiles=None):
+    def __init__(self, prob, prob_name, delta_t, sim_steps, state_cost_weight, terminal_cost_weight, do_RS, use_sampling, use_mid, use_QRNN, use_50NN, use_MSENN, model_state, optimizer_state, loss_state, replay_buffer_state, use_ASNN, model_ASNN, replay_buffer_ASNN, use_CEM=False, num_quantiles=None):
 
         self.prob = prob
 
@@ -25,7 +25,7 @@ class setup_class:
         self.loss_state = loss_state
         self.replay_buffer_state = replay_buffer_state
         self.use_ASNN = use_ASNN
-        self.loss_ASNN = loss_ASNN
+        # self.loss_ASNN = loss_ASNN
         self.replay_buffer_ASNN = replay_buffer_ASNN
         self.model_ASNN = model_ASNN
 

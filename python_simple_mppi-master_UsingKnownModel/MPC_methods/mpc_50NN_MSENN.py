@@ -46,13 +46,14 @@ def mpc_50NN_MSENN_func(prob_vars, sim_states, particles): # , use_LBFGSB=False
 
         else:
 
-            print("next_states.shape ", next_states.shape, "\n")
+            # print("next_states.shape ", next_states.shape, "\n")
 
-            print("costs.shape ", costs.shape, "\n")
+            # print("costs.shape ", costs.shape, "\n")
 
 
-            print("prob_vars.stage_cost_weight.shape ", prob_vars.stage_cost_weight.shape, "\n")
-            print("prob_vars.compute_state_cost(prob_vars.prob_name, next_states).shape ", prob_vars.compute_state_cost(prob_vars.prob_name, next_states).shape, "\n")
+            # print("prob_vars.stage_cost_weight.shape ", prob_vars.stage_cost_weight.shape, "\n")
+            # print("prob_vars.compute_state_cost(prob_vars.prob_name, next_states).shape ", prob_vars.compute_state_cost(prob_vars.prob_name, next_states).shape, "\n")
+            
             # print("prob_vars.stage_cost_weight * prob_vars.compute_state_cost(prob_vars.prob_name, next_states).shape ", prob_vars.stage_cost_weight * prob_vars.compute_state_cost(prob_vars.prob_name, next_states).shape, "\n")
             # print("prob_vars.stage_cost_weight * prob_vars.compute_state_cost(prob_vars.prob_name, next_states).shape ", prob_vars.stage_cost_weight * prob_vars.compute_state_cost(prob_vars.prob_name, next_states).shape, "\n")
             # print("prob_vars.stage_cost_weight * prob_vars.compute_state_cost(prob_vars.prob_name, next_states).sum().shape ", prob_vars.stage_cost_weight * prob_vars.compute_state_cost(prob_vars.prob_name, next_states).sum().shape, "\n")

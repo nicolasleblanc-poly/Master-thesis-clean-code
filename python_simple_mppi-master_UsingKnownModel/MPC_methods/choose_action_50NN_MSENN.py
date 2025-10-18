@@ -45,5 +45,8 @@ def choose_action_func_50NN_MSENN(prob_vars, state, particles, episode=0, step=1
             else:
                 best_first_action, particles = particle_filtering_func(prob_vars, particles, costs, best_action_sequence)
 
+        else:
+            best_first_action = best_action_sequence[0].item()
+
     return best_first_action, best_action_sequence, best_cost, particles
 

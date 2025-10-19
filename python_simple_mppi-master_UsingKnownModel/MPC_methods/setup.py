@@ -177,7 +177,7 @@ class setup_class:
             self.goal_state_dim = len(self.goal_state)
 
             self.states_low = torch.tensor([-2.4, -np.pi, -3, -10])
-            self.states_high = torch.tensor([-2.4, np.pi, 3, 10])
+            self.states_high = torch.tensor([2.4, np.pi, 3, 10])
 
             def compute_state_cost_Cartpole(self, x_t) -> float:
             # def _c(self, x_t: np.ndarray) -> float:
@@ -246,8 +246,8 @@ class setup_class:
             self.goal_state = torch.tensor([0, 0, 0, 0], dtype=torch.float32)
             self.goal_state_dim = len(self.goal_state)
 
-            self.states_low = torch.tensor([-2.4, -np.pi, -3, -10])
-            self.states_high = torch.tensor([-2.4, np.pi, 3, 10])
+            self.states_low = torch.tensor([-100, -5, -np.pi, -3, 0])
+            self.states_high = torch.tensor([100, 5, np.pi, 3, 20])
 
             def compute_state_cost_Pathtracking(self, x_t) -> float:
             # def _c(self, x_t: np.ndarray) -> float:

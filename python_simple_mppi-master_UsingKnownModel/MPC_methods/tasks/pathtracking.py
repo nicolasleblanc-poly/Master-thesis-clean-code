@@ -268,4 +268,4 @@ for i in range(sim_step):
     vehicle.update(u=[0.6 * np.sin(i/3.0), 2.2 * np.sin(i/10.0)], delta_t=delta_t) # u is the control input to the vehicle, [ steer[rad], accel[m/s^2] ]
 vehicle.show_animation(interval_ms=delta_t*1000) # show animation
 # save animation
-vehicle.save_animation("vehicle.mp4", interval=int(delta_t * 1000), movie_writer="ffmpeg") # ffmpeg is required to write mp4 file
+# vehicle.save_animation("vehicle.mp4", interval=int(delta_t * 1000), movie_writer="ffmpeg") # ffmpeg is required to write mp4 file

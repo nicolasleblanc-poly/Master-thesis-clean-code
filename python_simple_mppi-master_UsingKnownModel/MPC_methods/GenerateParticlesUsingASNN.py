@@ -3,7 +3,13 @@ import torch
 from state_pred_models import get_mid_quantile
 import copy
 
-def GenerateParticlesUsingASNN_func_QRNN(prob_vars, state, particles, model_QRNN, model_ASNN, use_sampling, use_mid):
+def GenerateParticlesUsingASNN_func_QRNN(prob_vars, state, particles):
+
+    model_QRNN = prob_vars.model_state
+    model_ASNN = prob_vars.model_ASNN
+    use_sampling = prob_vars.use_sampling
+    use_mid = prob_vars.use_mid
+
     if prob_vars.prob == "CartPole" or prob_vars.prob == "Acrobot" or prob_vars.prob == "MountainCar" or prob_vars.prob == "LunarLander": # Discrete actions
         action_probs = model_ASNN(torch.tensor(state, dtype=torch.float32), torch.tensor(prob_vars.goal_state, dtype=torch.float32))[0]
         
@@ -157,7 +163,10 @@ def GenerateParticlesUsingASNN_func_QRNN(prob_vars, state, particles, model_QRNN
     return particles
 
 
-def GenerateParticlesUsingASNN_func_50NN_MSENN(prob_vars, state, particles, model_state, model_ASNN):
+def GenerateParticlesUsingASNN_func_50NN_MSENN(prob_vars, state, particles):
+
+    model_state = prob_vars.model_state
+    model_ASNN = prob_vars.model_ASNN
     
     if prob_vars.prob == "CartPole" or prob_vars.prob == "Acrobot" or prob_vars.prob == "MountainCar" or prob_vars.prob == "LunarLander": # Discrete actions
         action_probs = model_ASNN(torch.tensor(state, dtype=torch.float32), torch.tensor(prob_vars.goal_state, dtype=torch.float32))[0]

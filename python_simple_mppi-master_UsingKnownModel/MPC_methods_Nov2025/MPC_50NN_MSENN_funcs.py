@@ -58,7 +58,7 @@ def start_50NN_MSENN_MPC_wASNN(prob_vars, env, seed, model_state, replay_buffer_
             
             costs.append(best_cost)
             
-            if prob_vars.prob == "Pendulum" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "Pendulum_xyomega" or prob_vars.prob == "InvertedPendulum" or prob_vars.prob == "CartPoleContinuous":
+            if prob_vars.prob == "Pendulum" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "Pendulum_xyomega" or prob_vars.prob == "InvertedPendulum" or prob_vars.prob == "CartPoleContinuous" or prob_vars.prob == "Pendulum_TrueMPC" or prob_vars.prob == "Cartpole_TrueMPC":
                 action = [best_particle[0]]
                 actions_list.append(list(action))
             
@@ -88,10 +88,29 @@ def start_50NN_MSENN_MPC_wASNN(prob_vars, env, seed, model_state, replay_buffer_
                         break
                     
             else:
-                # Apply the first action from the optimized sequence
-                next_state, reward, truncated, terminated, info = env.step(action)
-                episode_reward += reward
-                step += 1
+                if prob_vars.prob=="Cartpole_TrueMPC" or prob_vars.prob=="Pendulum_TrueMPC":
+                    state = prob_vars.cartpole_TrueMPC.get_state()
+                    
+                    episode_reward += prob_vars.compute_state_cost_1D(prob_vars.prob_name, state)
+                    
+                    # update states of cartpole
+                    prob_vars.cartpole_TrueMPC.update(u=[action], delta_t=prob_vars.delta_t)
+
+                    next_state = prob_vars.cartpole_TrueMPC.get_state()
+                    
+                elif prob_vars.prob=="Pendulum_TrueMPC":
+                    state = prob_vars.pendulum_TrueMPC.get_state()
+                    
+                    prob_vars.pendulum_TrueMPC.update(u=[action], delta_t=prob_vars.delta_t)
+
+                    episode_reward += prob_vars.compute_state_cost_1D(prob_vars.prob_name, state)
+                    
+                    next_state = prob_vars.pendulum_TrueMPC.get_state()
+                else:
+                    # Apply the first action from the optimized sequence
+                    next_state, reward, truncated, terminated, info = env.step(action)
+                    episode_reward += reward
+                    step += 1
  
             if prob_vars.prob == "Pendulum":
                 next_state = env.state.copy()
@@ -198,7 +217,7 @@ def start_50NN_MSENNrand_RS(prob_vars, env, seed, model_state, replay_buffer_sta
             
             costs.append(best_cost)
             
-            if prob_vars.prob == "Pendulum" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "Pendulum_xyomega" or prob_vars.prob == "InvertedPendulum" or prob_vars.prob == "CartPoleContinuous":
+            if prob_vars.prob == "Pendulum" or prob_vars.prob == "MountainCarContinuous" or prob_vars.prob == "Pendulum_xyomega" or prob_vars.prob == "InvertedPendulum" or prob_vars.prob == "CartPoleContinuous" or prob_vars.prob == "Pendulum_TrueMPC" or prob_vars.prob == "Cartpole_TrueMPC":
                 action = [best_particle[0]]
             
             elif prob_vars.prob == "PandaReacher" or prob_vars.prob == "MuJoCoReacher" or prob_vars.prob == "PandaPusher" or prob_vars.prob == "MuJoCoPusher" or prob_vars.prob == "LunarLanderContinuous" or prob_vars.prob == "PandaReacherDense" or prob_vars.prob == "PandaPusherDense":
@@ -225,10 +244,29 @@ def start_50NN_MSENNrand_RS(prob_vars, env, seed, model_state, replay_buffer_sta
                         break
                     
             else:
-                # Apply the first action from the optimized sequence
-                next_state, reward, truncated, terminated, info = env.step(action)
-                episode_reward += reward
-                step += 1
+                if prob_vars.prob=="Cartpole_TrueMPC" or prob_vars.prob=="Pendulum_TrueMPC":
+                    state = prob_vars.cartpole_TrueMPC.get_state()
+                    
+                    episode_reward += prob_vars.compute_state_cost_1D(prob_vars.prob_name, state)
+                    
+                    # update states of cartpole
+                    prob_vars.cartpole_TrueMPC.update(u=[action], delta_t=prob_vars.delta_t)
+
+                    next_state = prob_vars.cartpole_TrueMPC.get_state()
+                    
+                elif prob_vars.prob=="Pendulum_TrueMPC":
+                    state = prob_vars.pendulum_TrueMPC.get_state()
+                    
+                    prob_vars.pendulum_TrueMPC.update(u=[action], delta_t=prob_vars.delta_t)
+
+                    episode_reward += prob_vars.compute_state_cost_1D(prob_vars.prob_name, state)
+                    
+                    next_state = prob_vars.pendulum_TrueMPC.get_state()
+                else:
+                    # Apply the first action from the optimized sequence
+                    next_state, reward, truncated, terminated, info = env.step(action)
+                    episode_reward += reward
+                    step += 1
 
             actions_list.append(action)
             

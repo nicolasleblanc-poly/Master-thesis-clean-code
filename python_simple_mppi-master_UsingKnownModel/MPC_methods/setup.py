@@ -8,11 +8,11 @@ class setup_class:
 
         self.prob = prob
 
-        self.prob_name = prob_name
-        self.delta_t = delta_t
-        self.max_steps = sim_steps
-        self.stage_cost_weight = state_cost_weight
-        self.terminal_cost_weight = terminal_cost_weight
+        # self.prob_name = prob_name
+        # self.delta_t = delta_t
+        # self.max_steps = sim_steps
+        # self.stage_cost_weight = state_cost_weight
+        # self.terminal_cost_weight = terminal_cost_weight
 
         self.do_RS = do_RS
         self.use_sampling = use_sampling
@@ -51,7 +51,7 @@ class setup_class:
         self.nb_reps_MPC = 10
         self.nb_random = 0 # 10
 
-        if self.prob_name == "Pendulum":
+        if self.prob_name == "Pendulum_TrueMPC":
             self.discrete = False
             self.horizon = 20
             # self.max_episodes = 300
@@ -95,7 +95,30 @@ class setup_class:
             self.states_low = torch.tensor([-np.pi, -self.prob.max_speed])
             self.states_high = torch.tensor([np.pi, self.prob.max_speed])
 
-            def compute_state_cost_Pendulum(self, x_t) -> float:
+            self.stage_cost_weight = torch.tensor([1.0, 0.1]) # weight for [theta, theta_dot]
+            self.terminal_cost_weight = 5.0 * torch.tensor([1.0, 0.1]) # weight for [theta, theta_dot]
+
+
+            def compute_state_cost_Pendulum_TrueMPC_1D(self, x_t) -> float:
+                """calculate stage cost"""
+                theta, theta_dot = x_t[0], x_t[1]
+                theta = ((theta + np.pi) % (2 * np.pi)) - np.pi # normalize theta to [-pi, pi]
+                stage_cost = (self.stage_cost_weight[0]*theta**2 + self.stage_cost_weight[1]*theta_dot**2)#.sum()
+                return stage_cost
+            
+            def compute_state_cost_Pendulum_TrueMPC_1D(self, x_t) -> float:
+                """calculate stage cost"""
+                # parse x_t
+
+                # print("x_t.shape ", x_t.shape, "\n")
+
+                theta, theta_dot = x_t[0], x_t[1]
+                theta = ((theta + np.pi) % (2 * np.pi)) - np.pi # normalize theta to [-pi, pi]
+
+                stage_cost = (self.stage_cost_weight[0]*theta**2 + self.stage_cost_weight[1]*theta_dot**2)#.sum()
+                return stage_cost
+
+            def compute_state_cost_Pendulum_TrueMPC(self, x_t) -> float:
                 """calculate stage cost"""
                 # parse x_t
 
@@ -119,7 +142,7 @@ class setup_class:
                 stage_cost = (self.stage_cost_weight[0]*theta**2 + self.stage_cost_weight[1]*theta_dot**2)#.sum()
                 return stage_cost
 
-            def compute_terminal_cost_Pendulum(self, x_T) -> float:
+            def compute_terminal_cost_Pendulum_TrueMPC(self, x_T) -> float:
                 """calculate terminal cost"""
                 # parse x_T
                 theta, theta_dot = x_T[:,0], x_T[:,1]
@@ -131,11 +154,12 @@ class setup_class:
                 # terminal_cost = self.terminal_cost_weight[0]*theta**2 + self.terminal_cost_weight[1]*theta_dot**2
                 terminal_cost = (self.terminal_cost_weight[0]*theta**2 + self.terminal_cost_weight[1]*theta_dot**2)#.sum()
                 return terminal_cost
-            
-            self.compute_state_cost_Pendulum = compute_state_cost_Pendulum
-            self.compute_terminal_cost_Pendulum = compute_terminal_cost_Pendulum
-            
-        if self.prob_name == "Cartpole":
+
+            self.compute_state_cost_Pendulum_1D = compute_state_cost_Pendulum_TrueMPC_1D
+            self.compute_state_cost_Pendulum = compute_state_cost_Pendulum_TrueMPC
+            self.compute_terminal_cost_Pendulum = compute_terminal_cost_Pendulum_TrueMPC
+
+        if self.prob_name == "Cartpole_TrueMPC":
             self.discrete = False
             self.horizon = 20
             # self.max_episodes = 300
@@ -164,6 +188,9 @@ class setup_class:
             self.nb_top_particles = 5
             # nb_random = 10
             
+            
+            
+            
             # Hyperparameters
             self.state_dim = len(prob.state)
             # self.env.observation_space.shape[0]
@@ -179,7 +206,19 @@ class setup_class:
             self.states_low = torch.tensor([-2.4, -np.pi, -3, -10])
             self.states_high = torch.tensor([2.4, np.pi, 3, 10])
 
-            def compute_state_cost_Cartpole(self, x_t) -> float:
+            def compute_state_cost_Cartpole_TrueMPC_1D(self, x_t) -> float:
+            # def _c(self, x_t: np.ndarray) -> float:
+                """calculate stage cost"""
+                # parse x_t
+                x, x_dot = x_t[0], x_t[2]
+                theta, theta_dot = x_t[1], x_t[3]
+                theta = ((theta + np.pi) % (2 * np.pi)) - np.pi # normalize theta to [-pi, pi]
+
+                # calculate stage cost # (np.cos(theta)+1.0)
+                stage_cost = self.stage_cost_weight[0]*x**2 + self.stage_cost_weight[1]*theta**2 + self.stage_cost_weight[2]*x_dot**2 + self.stage_cost_weight[3]*theta_dot**2
+                return stage_cost
+
+            def compute_state_cost_Cartpole_TrueMPC(self, x_t) -> float:
             # def _c(self, x_t: np.ndarray) -> float:
                 """calculate stage cost"""
                 # parse x_t
@@ -191,7 +230,7 @@ class setup_class:
                 stage_cost = self.stage_cost_weight[0]*x**2 + self.stage_cost_weight[1]*theta**2 + self.stage_cost_weight[2]*x_dot**2 + self.stage_cost_weight[3]*theta_dot**2
                 return stage_cost
 
-            def compute_terminal_cost_Cartpole(self, x_T) -> float:
+            def compute_terminal_cost_Cartpole_TrueMPC(self, x_T) -> float:
                 """calculate terminal cost"""
                 # parse x_T
                 x, x_dot = x_T[:, 0], x_T[:, 2]
@@ -202,8 +241,9 @@ class setup_class:
                 terminal_cost = self.terminal_cost_weight[0]*x**2 + self.terminal_cost_weight[1]*theta**2 + self.terminal_cost_weight[2]*x_dot**2 + self.terminal_cost_weight[3]*theta_dot**2
                 return terminal_cost
 
-            self.compute_state_cost_Cartpole = compute_state_cost_Cartpole
-            self.compute_terminal_cost_Cartpole = compute_terminal_cost_Cartpole
+            self.compute_state_cost_Cartpole_1D = compute_state_cost_Cartpole_TrueMPC_1D
+            self.compute_state_cost_Cartpole = compute_state_cost_Cartpole_TrueMPC
+            self.compute_terminal_cost_Cartpole = compute_terminal_cost_Cartpole_TrueMPC
             
         if self.prob_name == "Pathtracking":
             self.discrete = False
@@ -248,6 +288,23 @@ class setup_class:
 
             self.states_low = torch.tensor([-100, -5, -np.pi, -3, 0])
             self.states_high = torch.tensor([100, 5, np.pi, 3, 20])
+            
+            def compute_state_cost_Pathtracking_1D(self, x_t) -> float:
+            # def _c(self, x_t: np.ndarray) -> float:
+                """calculate stage cost"""
+                # parse x_t
+                # x, y, yaw, v = x_t
+                x = x_t[0]
+                y = x_t[1]
+                yaw = x_t[2]
+                v = x_t[3]
+                yaw = ((yaw + 2.0*np.pi) % (2.0*np.pi)) # normalize theta to [0, 2*pi]
+
+                # calculate stage cost
+                _, ref_x, ref_y, ref_yaw, ref_v = self._get_nearest_waypoint(x, y)
+                stage_cost = self.stage_cost_weight[0]*(x-ref_x)**2 + self.stage_cost_weight[1]*(y-ref_y)**2 + \
+                            self.stage_cost_weight[2]*(yaw-ref_yaw)**2 + self.stage_cost_weight[3]*(v-ref_v)**2
+                return stage_cost
 
             def compute_state_cost_Pathtracking(self, x_t) -> float:
             # def _c(self, x_t: np.ndarray) -> float:
@@ -282,8 +339,19 @@ class setup_class:
                                 self.terminal_cost_weight[2]*(yaw-ref_yaw)**2 + self.terminal_cost_weight[3]*(v-ref_v)**2
                 return terminal_cost
 
-            self.compute_state_cost_Cartpole = compute_state_cost_Pathtracking
-            self.compute_terminal_cost_Cartpole = compute_terminal_cost_Pathtracking
+            self.compute_state_cost_Pathtracking_1D = compute_state_cost_Pathtracking_1D
+            self.compute_state_cost_Pathtracking = compute_state_cost_Pathtracking
+            self.compute_terminal_cost_Pathtracking = compute_terminal_cost_Pathtracking
+
+    def compute_state_cost_1D(self, prob, states):
+        if prob == "Pendulum":
+            return self.compute_state_cost_Pendulum_1D(self,states)
+        elif prob == "Cartpole":
+            return self.compute_state_cost_Cartpole_1D(self,states)
+        elif prob == "PathTracking":
+            return self.compute_state_cost_Pathtracking_1D(self,states)
+        else:
+            raise ValueError("Unknown problem")    
 
     def compute_state_cost(self, prob, states):
         if prob == "Pendulum":

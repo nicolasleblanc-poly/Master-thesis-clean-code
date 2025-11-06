@@ -73,6 +73,14 @@ class CartPole():
         # keep previous states
         x, theta, x_dot, theta_dot= self.state
 
+
+        u = np.squeeze(u)
+        if u.ndim == 0:  # avoid becoming a scalar
+            u = np.array([u])
+
+        print("u ", u, "\n")
+        print("len(u) ", len(u), "\n")
+        
         # prepare params
         g = self.g
         M = self.mass_of_cart
@@ -100,6 +108,16 @@ class CartPole():
         # update vel. values
         new_theta_dot = theta_dot + new_theta_ddot * dt
         new_x_dot = x_dot + new_x_ddot * dt
+
+        # x = float(np.squeeze(x))
+        # theta = float(np.squeeze(theta))
+        # x_dot = float(np.squeeze(x_dot))
+        # theta_dot = float(np.squeeze(theta_dot))
+
+        print("new_x ", new_x, '\n')
+        print("new_theta ", new_theta, '\n')
+        print("new_x_dot ", new_x_dot, '\n')
+        print("new_theta_dot ", new_theta_dot, '\n')
 
         # update state variables
         self.state = np.array([new_x, new_theta, new_x_dot, new_theta_dot])

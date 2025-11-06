@@ -1203,22 +1203,25 @@ class setup_class:
             # nb_random = 10
             
             # Hyperparameters
-            self.state_dim = len(prob.state)
+            # self.state_dim = len(prob.state)
             # self.env.observation_space.shape[0]
             # state_dim = env.observation_space.shape[0]-1 # Since we only care about angle and omega which are given using env.state
             # action_dim = env.action_space.shape[0]  # For Pendulum, it's continuous
-            self.action_dim = 1
-            self.action_low = -self.prob.max_torque
-            self.action_high = self.prob.max_torque
+            # self.action_dim = 1
+            # self.action_low = -self.prob.max_torque
+            # self.action_high = self.prob.max_torque
             
             self.goal_state = torch.tensor([0, 0], dtype=torch.float32)
             self.goal_state_dim = len(self.goal_state)
+
+            self.state_dim = len(self.goal_state)
 
             self.states_low = torch.tensor([-np.pi, -self.prob.max_speed])
             self.states_high = torch.tensor([np.pi, self.prob.max_speed])
 
             self.stage_cost_weight = torch.tensor([1.0, 0.1]) # weight for [theta, theta_dot]
             self.terminal_cost_weight = 5.0 * torch.tensor([1.0, 0.1]) # weight for [theta, theta_dot]
+            
 
             self.delta_t = 0.05 # [sec]
             self.max_episodes = 200
@@ -1226,7 +1229,7 @@ class setup_class:
             # print(f"[INFO] delta_t : {delta_t:.2f}[s] , sim_steps : {sim_steps}[steps], total_sim_time : {delta_t*sim_steps:.2f}[s]")
 
             # initialize a pendulum as a control target
-            self.pendulum_TrueMPC = Pendulum(
+            self.env = Pendulum(
                 mass_of_pole = 1.0,
                 length_of_pole = 1.0,
                 max_torque_abs = 2.0,
@@ -1234,10 +1237,14 @@ class setup_class:
                 delta_t = self.delta_t,
                 visualize = True,
             )
-            
-            self.pendulum_TrueMPC.reset(
+
+            self.reset_state = self.env.reset(
                 init_state = np.array([np.pi, 0.0]), # [theta(rad), theta_dot(rad/s)]
             )
+
+            self.action_dim = 1
+            self.action_low = -self.env.max_torque
+            self.action_high = self.env.max_torque
 
             def compute_state_cost_Pendulum_TrueMPC_1D(self, x_t) -> float:
                 """calculate stage cost"""
@@ -1317,16 +1324,18 @@ class setup_class:
             # nb_random = 10
             
             # Hyperparameters
-            self.state_dim = len(prob.state)
+            # self.state_dim = len(prob.state)
             # self.env.observation_space.shape[0]
             # state_dim = env.observation_space.shape[0]-1 # Since we only care about angle and omega which are given using env.state
             # action_dim = env.action_space.shape[0]  # For Pendulum, it's continuous
-            self.action_dim = 1
-            self.action_low = -self.prob.max_force_abs
-            self.action_high = self.prob.max_force_abs
+            # self.action_dim = 1
+            # self.action_low = -self.cartpole_TrueMPC.max_torque
+            # self.action_high = self.cartpole_TrueMPC.max_torque
 
             self.goal_state = torch.tensor([0, 0, 0, 0], dtype=torch.float32)
             self.goal_state_dim = len(self.goal_state)
+
+            self.state_dim = len(self.goal_state)
 
             self.states_low = torch.tensor([-2.4, -np.pi, -3, -10])
             self.states_high = torch.tensor([2.4, np.pi, 3, 10])
@@ -1336,21 +1345,26 @@ class setup_class:
             
             # simulation settings
             self.delta_t = 0.02 # [sec]
-            self.max_episodes = 200
+            # self.max_episodes = 200
+            self.max_episodes = 2 # As a test
             self.max_steps = 200 # [steps]
             # print(f"[INFO] delta_t : {delta_t:.2f}[s] , sim_steps : {sim_steps}[steps], total_sim_time : {delta_t*sim_steps:.2f}[s]")
             
             # initialize a cartpole as a control target
-            self.cartpole_TrueMPC = CartPole(
+            self.env = CartPole(
                 mass_of_cart = 1.0,
                 mass_of_pole = 0.01,
                 length_of_pole = 2.0, 
                 max_force_abs = 100.0,
             )
             
-            self.cartpole_TrueMPC.reset(
+            self.reset_state = self.env.reset(
                 init_state = np.array([0.0, np.pi, 0.0, 0.0]), # [x[m], theta[rad], x_dot[m/s], theta_dot[rad/s]]
             )
+
+            self.action_dim = 1
+            self.action_low = -self.env.max_force_abs
+            self.action_high = self.env.max_force_abs
 
             def compute_state_cost_Cartpole_TrueMPC_1D(self, x_t) -> float:
             # def _c(self, x_t: np.ndarray) -> float:
@@ -1429,31 +1443,31 @@ class setup_class:
             raise ValueError("Unknown problem")
 
     def compute_state_cost_1D(self, prob, states):
-        if prob == "Pendulum":
+        if prob == "Pendulum_TrueMPC":
             return self.compute_state_cost_Pendulum_1D(self,states)
-        elif prob == "Cartpole":
+        elif prob == "Cartpole_TrueMPC":
             return self.compute_state_cost_Cartpole_1D(self,states)
-        elif prob == "PathTracking":
+        elif prob == "PathTracking_TrueMPC":
             return self.compute_state_cost_Pathtracking_1D(self,states)
         else:
             raise ValueError("Unknown problem")    
 
     def compute_state_cost(self, prob, states):
-        if prob == "Pendulum":
+        if prob == "Pendulum_TrueMPC":
             return self.compute_state_cost_Pendulum(self,states)
-        elif prob == "Cartpole":
+        elif prob == "Cartpole_TrueMPC":
             return self.compute_state_cost_Cartpole(self,states)
-        elif prob == "PathTracking":
+        elif prob == "PathTracking_TrueMPC":
             return self.compute_state_cost_Pathtracking(self,states)
         else:
             raise ValueError("Unknown problem")
 
     def compute_terminal_cost(self, prob, states):
-        if prob == "Pendulum":
+        if prob == "Pendulum_TrueMPC":
             return self.compute_terminal_cost_Pendulum(self,states)
-        elif prob == "Cartpole":
+        elif prob == "Cartpole_TrueMPC":
             return self.compute_terminal_cost_Cartpole(self,states)
-        elif prob == "PathTracking":
+        elif prob == "PathTracking_TrueMPC":
             return self.compute_terminal_cost_Pathtracking(self,states)
         else:
             raise ValueError("Unknown problem")

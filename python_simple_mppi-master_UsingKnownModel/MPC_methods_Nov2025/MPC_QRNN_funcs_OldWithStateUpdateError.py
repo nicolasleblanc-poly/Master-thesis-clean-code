@@ -28,7 +28,22 @@ def start_QRNN_MPC_wASGNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, 
     #     states_high = torch.tensor([1, 1, 1, 1, 100, 100, torch.inf, torch.inf])
 
     for episode in range(prob_vars.max_episodes):
-        state, _ = env.reset(seed=seed)
+        if prob_vars.prob == "Cartpole_TrueMPC":
+            env.reset(
+                init_state = np.array([0.0, np.pi, 0.0, 0.0]), # [x[m], theta[rad], x_dot[m/s], theta_dot[rad/s]]
+            )
+
+            state = env.get_state()
+
+        elif prob_vars.prob == "Pendulum_TrueMPC":
+            env.reset(
+                init_state = np.array([np.pi, 0.0]), # [theta(rad), theta_dot(rad/s)]
+            )
+            
+            state = env.get_state()
+
+        else:
+            state, _ = env.reset(seed=seed)
         episode_reward = 0
         # is_success_bool = False # For Panda Gym envs
         done = False
@@ -586,7 +601,22 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
 
     # for episode in range(tqdm(max_episodes)):
     for episode in range(prob_vars.max_episodes):
-        state, _ = env.reset(seed=seed)
+        if prob_vars.prob == "Cartpole_TrueMPC":
+            env.reset(
+                init_state = np.array([0.0, np.pi, 0.0, 0.0]), # [x[m], theta[rad], x_dot[m/s], theta_dot[rad/s]]
+            )
+
+            state = env.get_state()
+
+        elif prob_vars.prob == "Pendulum_TrueMPC":
+            env.reset(
+                init_state = np.array([np.pi, 0.0]), # [theta(rad), theta_dot(rad/s)]
+            )
+
+            state = env.get_state()
+
+        else:
+            state, _ = env.reset(seed=seed)
         episode_reward = 0
         done = False
         actions_list = []

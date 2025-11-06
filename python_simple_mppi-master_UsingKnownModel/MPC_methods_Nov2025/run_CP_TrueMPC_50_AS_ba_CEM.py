@@ -24,7 +24,7 @@ from main_funcs import main_QRNN_MPC, main_50NN_MSENN_MPC
 from ASNN import ReplayBuffer_ASNN, ActionSequenceNN, gaussian_nll_loss, categorical_cross_entropy_loss, train_ActionSequenceNN
 from setup import setup_class
 
-prob = "CartPole"
+prob = "Cartpole_TrueMPC"
 
 print("prob ", prob, "\n")
 print("all methods \n")
@@ -43,7 +43,7 @@ def save_data(prob, method_name, episodic_rep_returns, mean_episodic_returns, st
     # }
 
     np.savez(
-    f"{prob}_{method_name}_June25_CEM.npz",
+    f"{prob}_{method_name}_Nov5_CEM.npz",
     episode_rewards=episodic_rep_returns,
     mean_rewards=mean_episodic_returns,
     std_rewards=std_episodic_returns

@@ -94,23 +94,16 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
                     
             else:
                 if prob_vars.prob=="Cartpole_TrueMPC" or prob_vars.prob=="Pendulum_TrueMPC":
-                    state = prob_vars.cartpole_TrueMPC.get_state()
+                    state = prob_vars.env.get_state()
                     
-                    episode_reward += prob_vars.compute_state_cost_1D(prob_vars.prob_name, state)
-                    
+                    reward = prob_vars.compute_state_cost_1D(prob_vars.prob, state)
+                    episode_reward += reward
+
                     # update states of cartpole
-                    prob_vars.cartpole_TrueMPC.update(u=[action], delta_t=prob_vars.delta_t)
+                    prob_vars.env.update(u=[action], delta_t=prob_vars.delta_t)
 
-                    next_state = prob_vars.cartpole_TrueMPC.get_state()
-                    
-                elif prob_vars.prob=="Pendulum_TrueMPC":
-                    state = prob_vars.pendulum_TrueMPC.get_state()
-                    
-                    prob_vars.pendulum_TrueMPC.update(u=[action], delta_t=prob_vars.delta_t)
+                    next_state = prob_vars.env.get_state()
 
-                    episode_reward += prob_vars.compute_state_cost_1D(prob_vars.prob_name, state)
-                    
-                    next_state = prob_vars.pendulum_TrueMPC.get_state()
                 else:
                     # Apply the first action from the optimized sequence
                     next_state, reward, truncated, terminated, info = env.step(action)
@@ -179,7 +172,22 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
 
     # for episode in range(tqdm(max_episodes)): # If you want to use tqdm, uncomment this lines
     for episode in range(prob_vars.max_episodes):
-        state, _ = env.reset(seed=seed)
+        if prob_vars.prob == "Cartpole_TrueMPC":
+            env.reset(
+                init_state = np.array([0.0, np.pi, 0.0, 0.0]), # [x[m], theta[rad], x_dot[m/s], theta_dot[rad/s]]
+            )
+
+            state = env.get_state()
+
+        elif prob_vars.prob == "Pendulum_TrueMPC":
+            env.reset(
+                init_state = np.array([np.pi, 0.0]), # [theta(rad), theta_dot(rad/s)]
+            )
+
+            state = env.get_state()
+
+        else:
+            state, _ = env.reset(seed=seed)
         episode_reward = 0
         done = False
         actions_list = []
@@ -247,23 +255,14 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
                     
             else:
                 if prob_vars.prob=="Cartpole_TrueMPC" or prob_vars.prob=="Pendulum_TrueMPC":
-                    state = prob_vars.cartpole_TrueMPC.get_state()
-                    
-                    episode_reward += prob_vars.compute_state_cost_1D(prob_vars.prob_name, state)
-                    
+                    state = prob_vars.env.get_state()
+                    reward = prob_vars.compute_state_cost_1D(prob_vars.prob, state)
+                    episode_reward += reward
+
                     # update states of cartpole
-                    prob_vars.cartpole_TrueMPC.update(u=[action], delta_t=prob_vars.delta_t)
+                    prob_vars.env.update(u=[action], delta_t=prob_vars.delta_t)
 
-                    next_state = prob_vars.cartpole_TrueMPC.get_state()
-                    
-                elif prob_vars.prob=="Pendulum_TrueMPC":
-                    state = prob_vars.pendulum_TrueMPC.get_state()
-                    
-                    prob_vars.pendulum_TrueMPC.update(u=[action], delta_t=prob_vars.delta_t)
-
-                    episode_reward += prob_vars.compute_state_cost_1D(prob_vars.prob_name, state)
-                    
-                    next_state = prob_vars.pendulum_TrueMPC.get_state()
+                    next_state = prob_vars.env.get_state()
                 else:
                     # Apply the first action from the optimized sequence
                     next_state, reward, truncated, terminated, info = env.step(action)

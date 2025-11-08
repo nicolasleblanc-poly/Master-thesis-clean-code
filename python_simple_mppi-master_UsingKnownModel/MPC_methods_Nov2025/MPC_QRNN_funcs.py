@@ -103,6 +103,7 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
                     prob_vars.env.update(u=[action], delta_t=prob_vars.delta_t)
 
                     next_state = prob_vars.env.get_state()
+                    terminated = False
 
                 else:
                     # Apply the first action from the optimized sequence
@@ -263,6 +264,7 @@ def start_QRNNrand_RS(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, opti
                     prob_vars.env.update(u=[action], delta_t=prob_vars.delta_t)
 
                     next_state = prob_vars.env.get_state()
+                    terminated = False
                 else:
                     # Apply the first action from the optimized sequence
                     next_state, reward, truncated, terminated, info = env.step(action)

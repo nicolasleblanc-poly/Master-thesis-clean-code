@@ -117,6 +117,8 @@ def start_50NN_MSENN_MPC_wASNN(prob_vars, env, seed, model_state, replay_buffer_
                     prob_vars.env.update(u=[action], delta_t=prob_vars.delta_t)
 
                     next_state = prob_vars.env.get_state()
+                    
+                    terminated = False
                 else:
                     # Apply the first action from the optimized sequence
                     next_state, reward, truncated, terminated, info = env.step(action)
@@ -279,6 +281,7 @@ def start_50NN_MSENNrand_RS(prob_vars, env, seed, model_state, replay_buffer_sta
                     prob_vars.env.update(u=[action], delta_t=prob_vars.delta_t)
 
                     next_state = prob_vars.env.get_state()
+                    terminated = False
                 else:
                     # Apply the first action from the optimized sequence
                     next_state, reward, truncated, terminated, info = env.step(action)

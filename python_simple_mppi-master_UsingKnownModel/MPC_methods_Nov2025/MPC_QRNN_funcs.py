@@ -16,14 +16,19 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
     nb_episode_success = 0 # For Panda Gym envs
 
     for episode in range(prob_vars.max_episodes):
-        if prob_vars.prob=="Cartpole_TrueMPC":
-            state = prob_vars.cartpole_task.reset(
+        if prob_vars.prob == "Cartpole_TrueMPC":
+            env.reset(
                 init_state = np.array([0.0, np.pi, 0.0, 0.0]), # [x[m], theta[rad], x_dot[m/s], theta_dot[rad/s]]
             )
-        elif prob_vars.prob=="Pendulum_TrueMPC":
-            state = prob_vars.pendulum_task.reset(
-                init_state = np.array([np.pi, 0.0]), # [theta[rad], theta_dot[rad/s]]
+
+            state = env.get_state()
+
+        elif prob_vars.prob == "Pendulum_TrueMPC":
+            env.reset(
+                init_state = np.array([np.pi, 0.0]), # [theta(rad), theta_dot(rad/s)]
             )
+
+            state = env.get_state()
         else:
             state, _ = env.reset(seed=seed)
             
@@ -121,7 +126,7 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
             if prob_vars.prob == "MuJoCoReacher":
                 next_state = np.array([next_state[0], next_state[1], next_state[2], next_state[3], next_state[6], next_state[7], next_state[8], next_state[9]])
 
-            if prob_vars.prob == "CartPole" or prob_vars.prob == "Acrobot" or prob_vars.prob == "MountainCar" or prob_vars.prob == "LunarLander":
+            if prob_vars.prob == "CartPole" or prob_vars.prob == "Acrobot" or prob_vars.prob == "MountainCar" or prob_vars.prob == "LunarLander" or prob_vars.prob == "Cartpole_TrueMPC" or prob_vars.prob == "Pendulum_TrueMPC":
                 replay_buffer_QRNN.append((state, np.array([action]), reward, next_state, terminated))
                 replay_buffer_ASNN.push(state, prob_vars.goal_state, np.array([action]))
             else:
@@ -149,6 +154,8 @@ def start_QRNN_MPC_wASNN(prob_vars, env, seed, model_QRNN, replay_buffer_QRNN, o
                 break
             
             state = next_state
+            
+            # print("action taken: ", action, "\n")
             
             # Shift all particles to the left by removing the first element
             particles[:, :-prob_vars.action_dim] = particles[:, prob_vars.action_dim:]

@@ -6,6 +6,8 @@ import torch
 from mpc_50NN_MSENN import mpc_50NN_MSENN_func
 from particle_filtering import particle_filtering_func, discrete_cem_func, continuous_cem_func
 
+import sys
+
 def choose_action_func_50NN_MSENN(prob_vars, state, particles, do_RS, use_sampling, use_mid, use_ASGNN, model_state, model_ASN, episode=0, step=1, goal_state=None):
 
     best_cost = float('inf')
@@ -39,6 +41,12 @@ def choose_action_func_50NN_MSENN(prob_vars, state, particles, do_RS, use_sampli
             print("sim_states ", sim_states, "\n")
             print("state ", state, "\n")
             print("particles ", particles, "\n")
+            
+            print("Invalid state — stopping execution.")
+            sys.exit(1)
+            
+            
+            
 
         if not do_RS:
             if prob_vars.use_CEM:

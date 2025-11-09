@@ -1346,7 +1346,7 @@ class setup_class:
             # simulation settings
             self.delta_t = 0.02 # [sec]
             # self.max_episodes = 200
-            self.max_episodes = 2 # As a test
+            self.max_episodes = 20 # As a test
             self.max_steps = 200 # [steps]
             # print(f"[INFO] delta_t : {delta_t:.2f}[s] , sim_steps : {sim_steps}[steps], total_sim_time : {delta_t*sim_steps:.2f}[s]")
             
